@@ -8,52 +8,55 @@ const {
   GraphQLFloat
 } = require('graphql');
 
-const fs = require('fs');
 const axios = require('axios');
 const parseString = require('xml2js').parseString;
 
 // Models
-const ForecastBlockModel = require('./models/ForecastBlockModel');
-const SeaCrossingModel = require('./models/SeaCrossingModel');
-const CountyForecastModel = require('./models/CountyForecastModel');
-const RegionalForecastModel = require('./models/RegionalForecastModel');
-const NationalForecastModel = require('./models/NationalForecastModel');
-const InlandLakeForecastModel = require('./models/InlandLakeForecastModel');
-const FarmingForecastModel = require('./models/FarmingForecastModel');
-const CoastalModel = require('./models/CoastalModel');
-const PresentObservationsModel = require('./models/PresentObservationsModel');
-const OutlookModel = require('./models/OutlookModel');
-const WebThreeDayForecastModel = require('./models/WebThreeDayForecastModel');
-const WarningModel = require('./models/WarningModel');
-const WebForecastModel = require('./models/WebForecastModel.js');
+const {
+  BlockForecast,
+  SeaCrossingForecast,
+  CountyForecast,
+  RegionalForecast,
+  NationalForecast,
+  InlandLakeForecast,
+  FarmingForecast,
+  CoastalForecast,
+  PresentObservationsForecast,
+  OutlookForecast,
+  WebThreeDayForecast,
+  WarningForecast,
+  WebForecast
+} = require('./models/forecasts');
 
 // Types
-const ForecastBlockType = require('./schemaTypes/forecastBlock');
-const SeaCrossingType = require('./schemaTypes/seaCrossing');
-const CountyForecastType = require('./schemaTypes/countyForecast');
-const RegionalForecastType = require('./schemaTypes/regionalForecast');
-const NationalForecastType = require('./schemaTypes/nationalForecast');
-const InlandLakeForecastType = require('./schemaTypes/inlandLakeForecast');
-const FarmingForecastType = require('./schemaTypes/farmingForecast');
-const CoastalType = require('./schemaTypes/Coastal');
-const PresentObservationsType = require('./schemaTypes/presentObservations');
-const OutlookType = require('./schemaTypes/outlook');
-const WebThreeDayForecastType = require('./schemaTypes/webThreeDayForecast');
-const WarningType = require('./schemaTypes/warning');
-const WebForecastType = require('./schemaTypes/webForecast');
+const {
+  BlockForecastType,
+  SeaCrossingForecastType,
+  CountyForecastType,
+  RegionalForecastType,
+  NationalForecastType,
+  InlandLakeForecastType,
+  FarmingForecastType,
+  CoastalForecastType,
+  PresentObservationsForecastType,
+  OutlookForecastType,
+  WebThreeDayForecastType,
+  WarningForecastType,
+  WebForecastType
+} = require('./schema/forecasts');
 
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
     forecasts: {
-      type: new GraphQLList(ForecastBlockType),
+      type: new GraphQLList(BlockForecastType),
       async resolve(parent, args) {
         const forecasts = await getBlockForecast();
         return forecasts;
       }
     },
     seaCrossings: {
-      type: SeaCrossingType,
+      type: SeaCrossingForecastType,
       async resolve(parent, args) {
         const seaCrossings = await getLiveTextForecast('xsea_crossings');
 
@@ -71,7 +74,7 @@ const RootQuery = new GraphQLObjectType({
         return countyForecast;
       }
     },
-
+    // NB TODO - limit regional args to Connaught, Leinster... etc
     regionalForecast: {
       type: RegionalForecastType,
       args: { region: { type: GraphQLString } },
@@ -87,7 +90,7 @@ const RootQuery = new GraphQLObjectType({
         return nationalForecast;
       }
     },
-    InlandLakeForecast: {
+    inlandLakeForecast: {
       type: InlandLakeForecastType,
       async resolve() {
         const inlandLakeForecast = await getLiveTextForecast(
@@ -96,36 +99,36 @@ const RootQuery = new GraphQLObjectType({
         return inlandLakeForecast;
       }
     },
-    FarmingForecast: {
+    farmingForecast: {
       type: FarmingForecastType,
       async resolve() {
         const farmingForecast = await getLiveTextForecast('fcom');
         return farmingForecast;
       }
     },
-    Coastal: {
-      type: CoastalType,
+    coastal: {
+      type: CoastalForecastType,
       async resolve() {
         const coastalForecast = await getLiveTextForecast('xcoastal');
 
         return coastalForecast;
       }
     },
-    PresentObservations: {
-      type: PresentObservationsType,
+    presentObservations: {
+      type: PresentObservationsForecastType,
       async resolve() {
         const presentObservations = await getLiveTextForecast('obs_present');
         return presentObservations;
       }
     },
-    Outlook: {
-      type: OutlookType,
+    outlook: {
+      type: OutlookForecastType,
       async resolve() {
         const outlook = await getLiveTextForecast('xOutlook');
         return outlook;
       }
     },
-    WebThreeDayForecast: {
+    webThreeDayForecast: {
       type: WebThreeDayForecastType,
       async resolve() {
         const webThreeDayForecast = await getLiveTextForecast(
@@ -134,7 +137,7 @@ const RootQuery = new GraphQLObjectType({
         return webThreeDayForecast;
       }
     },
-    WebForecast: {
+    webForecast: {
       type: WebForecastType,
       async resolve() {
         const webForecast = await getLiveTextForecast('web-forecast');
@@ -143,8 +146,8 @@ const RootQuery = new GraphQLObjectType({
       }
     }
     // Don't know how this should be structured - need to check next time there's weather warnings
-    // Warning: {
-    //   type: WarningType,
+    // warning: {
+    //   type: WarningForecastType,
     //   async resolve() {
     //     const warning = await getLiveTextForecast(
     //       'xWarningPage'
@@ -155,73 +158,46 @@ const RootQuery = new GraphQLObjectType({
   }
 });
 
-const availableLiveTextForecastTypes = [
-  // 'xOutlook',
-  'county_forecast',
-  // 'web-3Dayforecast',
-  // 'xConnacht',
-  // 'xMunster',
-  // 'xDublin',
-  // 'obs_present',
-  // 'xcoastal',
-  // 'fcom',
-  // 'xWarningPage',
-  'web-forecast'
-  // 'xLeinster',
-  // 'xUlster',
-  // 'xInland_Lake_Forecast',
-  // 'xConnacht',
-  // 'xNational',
-  // 'xsea_crossings'
-];
-
 function getModalName(name) {
   switch (name) {
     case 'xsea_crossings':
-      return SeaCrossingModel;
+      return SeaCrossingForecast;
     case 'county_forecast':
-      return CountyForecastModel;
+      return CountyForecast;
     case 'xConnacht':
-      return RegionalForecastModel;
+      return RegionalForecast;
     case 'xMunster':
-      return RegionalForecastModel;
+      return RegionalForecast;
     case 'xUlster':
-      return RegionalForecastModel;
+      return RegionalForecast;
     case 'xLeinster':
-      return RegionalForecastModel;
+      return RegionalForecast;
     case 'xDublin':
-      return RegionalForecastModel;
+      return RegionalForecast;
     case 'xNational':
-      return NationalForecastModel;
+      return NationalForecast;
     case 'xInland_Lake_Forecast':
-      return InlandLakeForecastModel;
+      return InlandLakeForecast;
     case 'fcom':
-      return FarmingForecastModel;
+      return FarmingForecast;
     case 'xcoastal':
-      return CoastalModel;
+      return CoastalForecast;
     case 'obs_present':
-      return PresentObservationsModel;
+      return PresentObservationsForecast;
     case 'xOutlook':
-      return OutlookModel;
+      return OutlookForecast;
     case 'web-3Dayforecast':
-      return WebThreeDayForecastModel;
+      return WebThreeDayForecast;
     case 'xWarningPage':
-      return WarningModel;
+      return WarningForecast;
     case 'web-forecast':
-      return WebForecastModel;
+      return WebForecast;
   }
 }
 
 function dynamicClass(name) {
   const modal = getModalName(name);
   return modal;
-}
-
-function toJsonAndwrite(data, fileName) {
-  const json = JSON.stringify(data, null, 4);
-  fs.writeFile(`${fileName}.json`, json, 'utf8', function() {
-    console.log(`written to ${filename}.json`);
-  });
 }
 
 function XMLToJson(xml) {
@@ -254,17 +230,17 @@ async function getBlockForecast() {
 
   try {
     let xmlResponse = await axios.get(url);
-  const parsedResponse = XMLToJson(xmlResponse.data);
-  const theForecast = new ForecastBlockModel(parsedResponse);
+    const parsedResponse = XMLToJson(xmlResponse.data);
+    const theForecast = new BlockForecast(parsedResponse);
 
-  return theForecast.forecasts;
-  } catch(error) {
-    throw new Error(`${error}. There was a problem communicating with Met Eireann\'s API.`)
+    return theForecast.forecasts;
+  } catch (error) {
+    throw new Error(
+      `${error}. There was a problem communicating with Met Eireann\'s API.`
+    );
   }
 }
 
 module.exports = new GraphQLSchema({
   query: RootQuery
 });
-
-//https://data.gov.ie/dataset/weather-warnings
