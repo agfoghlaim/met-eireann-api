@@ -45,105 +45,69 @@ const {
   WebForecastType
 } = require('./schema/forecasts');
 
+
+
+const REGIONAL_FORECAST_REGIONS = [
+  'Connaught',
+  'Munster',
+  'Leinster',
+  'Ulster',
+  'Dublin'
+];
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
     forecasts: {
       type: new GraphQLList(BlockForecastType),
-      async resolve(parent, args) {
-        const forecasts = await getBlockForecast();
-        return forecasts;
-      }
+      resolve: async (parent, args) => await getBlockForecast()
     },
     seaCrossings: {
       type: SeaCrossingForecastType,
-      async resolve(parent, args) {
-        const seaCrossings = await getLiveTextForecast('xsea_crossings');
-
-        return seaCrossings;
-      }
+      resolve: async (parent, args) =>
+        await getLiveTextForecast('xsea_crossings')
     },
     countyForecast: {
       type: CountyForecastType,
       args: { counties: { type: new GraphQLList(GraphQLString) } },
-      async resolve(parent, args) {
-        const countyForecast = await getLiveTextForecast(
-          'county_forecast',
-          args
-        );
-        return countyForecast;
-      }
+      resolve: async (parent, args) =>
+        await getLiveTextForecast('county_forecast', args)
     },
-    // NB TODO - limit regional args to Connaught, Leinster... etc
     regionalForecast: {
       type: RegionalForecastType,
       args: { region: { type: GraphQLString } },
-      async resolve(parent, args) {
-        const regionalForecast = await getLiveTextForecast(`x${args.region}`);
-        return regionalForecast;
-      }
+      resolve: (parent, args) => regionalForecastResolver(args)
     },
     nationalForecast: {
       type: NationalForecastType,
-      async resolve() {
-        const nationalForecast = await getLiveTextForecast('xNational');
-        return nationalForecast;
-      }
+      resolve: async () => await getLiveTextForecast('xNational')
     },
     inlandLakeForecast: {
       type: InlandLakeForecastType,
-      async resolve() {
-        const inlandLakeForecast = await getLiveTextForecast(
-          'xInland_Lake_Forecast'
-        );
-        return inlandLakeForecast;
-      }
+      resolve: async () => await getLiveTextForecast('xInland_Lake_Forecast')
     },
     farmingForecast: {
       type: FarmingForecastType,
-      async resolve() {
-        const farmingForecast = await getLiveTextForecast('fcom');
-        return farmingForecast;
-      }
+      resolve: async () => await getLiveTextForecast('fcom')
     },
     coastal: {
       type: CoastalForecastType,
-      async resolve() {
-        const coastalForecast = await getLiveTextForecast('xcoastal');
-
-        return coastalForecast;
-      }
+      resolve: async () => await getLiveTextForecast('xcoastal')
     },
     presentObservations: {
       type: PresentObservationsForecastType,
-      async resolve() {
-        const presentObservations = await getLiveTextForecast('obs_present');
-        return presentObservations;
-      }
+      resolve: async () => await getLiveTextForecast('obs_present')
     },
     outlook: {
       type: OutlookForecastType,
-      async resolve() {
-        const outlook = await getLiveTextForecast('xOutlook');
-        return outlook;
-      }
+      resolve: async () => await getLiveTextForecast('xOutlook')
     },
     webThreeDayForecast: {
       type: WebThreeDayForecastType,
-      async resolve() {
-        const webThreeDayForecast = await getLiveTextForecast(
-          'web-3Dayforecast'
-        );
-        return webThreeDayForecast;
-      }
+      resolve: async () => await getLiveTextForecast('web-3Dayforecast')
     },
     webForecast: {
       type: WebForecastType,
-      async resolve() {
-        const webForecast = await getLiveTextForecast('web-forecast');
-
-        return webForecast;
-      }
+      resolve: async () => await getLiveTextForecast('web-forecast')
     }
     // Don't know how this should be structured - need to check next time there's weather warnings
     // warning: {
@@ -158,8 +122,9 @@ const RootQuery = new GraphQLObjectType({
   }
 });
 
-function getModalName(name) {
-  switch (name) {
+
+function liveTextForecastModelByURI(uri) {
+  switch (uri) {
     case 'xsea_crossings':
       return SeaCrossingForecast;
     case 'county_forecast':
@@ -195,11 +160,6 @@ function getModalName(name) {
   }
 }
 
-function dynamicClass(name) {
-  const modal = getModalName(name);
-  return modal;
-}
-
 function XMLToJson(xml) {
   let ans;
   parseString(xml, (err, result) => {
@@ -209,14 +169,16 @@ function XMLToJson(xml) {
   return ans;
 }
 
-// TODO these functions only differ by url....
 async function getLiveTextForecast(liveTextForecastType, args) {
   const url = `https://www.met.ie/Open_Data/xml/${liveTextForecastType}.xml`;
+
   try {
     const xmlResponse = await axios.get(url);
     const parsedResponse = XMLToJson(xmlResponse.data);
+    const relevantForecastModel = liveTextForecastModelByURI(
+      liveTextForecastType
+    );
 
-    const relevantForecastModel = dynamicClass(liveTextForecastType);
     const thisForecast = new relevantForecastModel(parsedResponse, args);
 
     return thisForecast.forecast;
@@ -239,6 +201,18 @@ async function getBlockForecast() {
       `${error}. There was a problem communicating with Met Eireann\'s API.`
     );
   }
+}
+
+async function regionalForecastResolver(args) {
+  if (!args.region) throw new Error('Please set region');
+
+  if (!REGIONAL_FORECAST_REGIONS.includes(args.region)) {
+    throw new Error(
+      'Please set region. Available regions are Connaught, Munster, Leinster, Ulster, Dublin'
+    );
+  }
+  const regionalForecast = await getLiveTextForecast(`x${args.region}`);
+  return regionalForecast;
 }
 
 module.exports = new GraphQLSchema({
