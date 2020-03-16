@@ -3,8 +3,6 @@
 class ForecastBlockModel {
   constructor(config) {
     // TODO deal with meta
-
-    // const weatherModels = config.weatherdata.meta[0].model;
     const weatherForeCasts = config.weatherdata.product[0].time;
 
     const forecastsInDreamFormat = [
@@ -17,8 +15,6 @@ class ForecastBlockModel {
       return fn(weatherForeCasts);
     }, weatherForeCasts);
 
-    // console.log(forecastsInDreamFormat[0].mainForecast);
-
     this.forecasts = forecastsInDreamFormat;
   }
 
@@ -30,7 +26,7 @@ class ForecastBlockModel {
     }
   }
 
-  //
+  
   static possibleBlockAKeys() {
     return [
       'temperature',

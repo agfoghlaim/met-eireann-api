@@ -27,6 +27,7 @@ const {
   WarningForecast,
   WebForecast
 } = require('./models/forecasts');
+const MonthlyData = require('./models/monthlyData')
 
 // Types
 const {
@@ -44,9 +45,66 @@ const {
   WarningForecastType,
   WebForecastType
 } = require('./schema/forecasts');
+const MonthlyDataType = require('./schema/monthlyData');
 
 
+const LIST_OF_STATIONS_WITH_JSON_MONTHLY_DATA = [
+  'Valentia Observatory',
+  'Sherkin Island',
+  'Shannon Airport',
+  'Roches Point',
+  'Phoenix Park',
+  'Oak Park',
+  'Newport Furnace',
+  'Mullingar',
+  'Mount Dillon',
+  'Moore Park',
+  'Markree Castle', 
+  'Malin Head',
+  'Mace Head',
+  'Knock Airport',
+  'Johnstown Castle',
+  'Gurteen',
+  'Finner Camp',
+  'Dunsany (Grange)',
+  'Cork Airport',
+  'Claremorris',
+  'Casement Aerodrome',
+  'Belmullet',
+  'Ballyhaise',
+  'Athenry',
+  'Dublin Airport',
+  'Valentia Observatory',
+]
 
+const LIST_OF_STATIONS_WITH_JSON_YESTERDAY_DATA = [
+
+  'sherkin-island',
+  'shannon',
+  'roches-point',
+  'phoenix-park',
+  'oak-park', //
+  'newport-furnace', //
+  'mullingar', //
+  'mt-dillon', //
+  'moore-park', //
+  'Markree-Castle', //
+  'malin-head', //
+  'mace-head', //
+  'knock', //
+  'johnstown',
+  'gurteen', //
+  'finner', //
+  'dunsany', //
+  'cork', // airport
+  'claremorris', //
+  'casement', //
+  'belmullet', //
+  'ballyhaise', //
+  'athenry', //
+  'dublin', // airport
+  'valentia',
+]
 const REGIONAL_FORECAST_REGIONS = [
   'Connaught',
   'Munster',
@@ -108,6 +166,11 @@ const RootQuery = new GraphQLObjectType({
     webForecast: {
       type: WebForecastType,
       resolve: async () => await getLiveTextForecast('web-forecast')
+    },
+    monthlyData: {
+      type: MonthlyDataType,
+      args: {station: {type: GraphQLString}},
+      resolve: (parent, args) => getMonthlyData(args.station)
     }
     // Don't know how this should be structured - need to check next time there's weather warnings
     // warning: {
@@ -122,6 +185,23 @@ const RootQuery = new GraphQLObjectType({
   }
 });
 
+async function getMonthlyData(station) {
+
+  //const url = `https://prodapi.metweb.ie/monthly-data/Sherkin%20Island`
+  const url = `https://prodapi.metweb.ie/monthly-data/${station}`
+  try {
+    const response = await axios.get(url);
+ 
+    const temp = new MonthlyData(response.data);
+ 
+    return temp.data;
+  }
+  catch(e) {
+   throw new Error(e)
+  }
+
+}
+// getMonthlyData();
 
 function liveTextForecastModelByURI(uri) {
   switch (uri) {
