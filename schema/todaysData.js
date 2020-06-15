@@ -26,9 +26,10 @@ const HourlyDataType = new GraphQLObjectType({
 //   })
 // });
 
-const TodaysDataType = new GraphQLList({
-  name: 'TodaysData',
+const TodaysDataType = new GraphQLObjectType({
+  name: 'TodaysDataType',
   fields: () => ({
+    // hourly: { type: GraphQLString}
     hourly: { type: new GraphQLList(HourlyDataType) }
   })
 });

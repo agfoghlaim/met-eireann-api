@@ -1,5 +1,6 @@
 class MonthlyDataModel {
   constructor(data) {
+    console.log(data)
     this.data = this.addUnderscoresToKeysWithNumbers(data);
   }
 

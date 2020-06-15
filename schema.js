@@ -5,7 +5,7 @@ const {
   GraphQLInt,
   GraphQLSchema,
   GraphQLList,
-  GraphQLFloat
+  GraphQLFloat,
 } = require('graphql');
 
 const axios = require('axios');
@@ -25,12 +25,16 @@ const {
   OutlookForecast,
   WebThreeDayForecast,
   WarningForecast,
-  WebForecast
+  WebForecast,
 } = require('./models/forecasts');
 
 const MonthlyData = require('./models/monthlyData');
-// const TodaysData = require('./models/todaysData');
-const { stationNamesForMonthlyDataEndpoint, stationNamesForTodayYesterdayDataEndpoints } = require('./models/stations/stations');
+const TodaysData = require('./models/todaysData');
+const AgriculturalDataReport = require('./models/agriculturalDataReport');
+const {
+  stationNamesForMonthlyDataEndpoint,
+  stationNamesForTodayYesterdayDataEndpoints,
+} = require('./models/stations/stations');
 // Types
 const {
   BlockForecastType,
@@ -45,105 +49,116 @@ const {
   OutlookForecastType,
   WebThreeDayForecastType,
   WarningForecastType,
-  WebForecastType
+  WebForecastType,
 } = require('./schema/forecasts');
 const MonthlyDataType = require('./schema/monthlyData');
-// const TodaysDataType = require('./schema/todaysData');
+const TodaysDataType = require('./schema/todaysData');
+const AgriculturalDataReportType = require('./schema/agriculturalDataReport');
 
 const REGIONAL_FORECAST_REGIONS = [
   'Connaught',
   'Munster',
   'Leinster',
   'Ulster',
-  'Dublin'
+  'Dublin',
 ];
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
     forecasts: {
       type: new GraphQLList(BlockForecastType),
-      resolve: async (parent, args) => await getBlockForecast()
+      resolve: async (parent, args) => await getBlockForecast(),
     },
     seaCrossings: {
       type: SeaCrossingForecastType,
       resolve: async (parent, args) =>
-        await getLiveTextForecast('xsea_crossings')
+        await getLiveTextForecast('xsea_crossings'),
     },
     countyForecast: {
       type: CountyForecastType,
       args: { counties: { type: new GraphQLList(GraphQLString) } },
       resolve: async (parent, args) =>
-        await getLiveTextForecast('county_forecast', args)
+        await getLiveTextForecast('county_forecast', args),
     },
     regionalForecast: {
       type: RegionalForecastType,
       args: { region: { type: GraphQLString } },
-      resolve: (parent, args) => regionalForecastResolver(args)
+      resolve: (parent, args) => regionalForecastResolver(args),
     },
     nationalForecast: {
       type: NationalForecastType,
-      resolve: async () => await getLiveTextForecast('xNational')
+      resolve: async () => await getLiveTextForecast('xNational'),
     },
     inlandLakeForecast: {
       type: InlandLakeForecastType,
-      resolve: async () => await getLiveTextForecast('xInland_Lake_Forecast')
+      resolve: async () => await getLiveTextForecast('xInland_Lake_Forecast'),
     },
     farmingForecast: {
       type: FarmingForecastType,
-      resolve: async () => await getLiveTextForecast('fcom')
+      resolve: async () => await getLiveTextForecast('fcom'),
     },
     coastal: {
       type: CoastalForecastType,
-      resolve: async () => await getLiveTextForecast('xcoastal')
+      resolve: async () => await getLiveTextForecast('xcoastal'),
     },
     presentObservations: {
       type: PresentObservationsForecastType,
-      resolve: async () => await getLiveTextForecast('obs_present')
+      args: { stations: { type: new GraphQLList(GraphQLString) } },
+      resolve: async (parent, args) =>
+        await getLiveTextForecast('obs_present', args.stations),
     },
     outlook: {
       type: OutlookForecastType,
-      resolve: async () => await getLiveTextForecast('xOutlook')
+      resolve: async () => await getLiveTextForecast('xOutlook'),
     },
     webThreeDayForecast: {
       type: WebThreeDayForecastType,
-      resolve: async () => await getLiveTextForecast('web-3Dayforecast')
+      resolve: async () => await getLiveTextForecast('web-3Dayforecast'),
     },
     webForecast: {
       type: WebForecastType,
-      resolve: async () => await getLiveTextForecast('web-forecast')
+      resolve: async () => await getLiveTextForecast('web-forecast'),
     },
     monthlyData: {
       type: MonthlyDataType,
       args: { station: { type: GraphQLString } },
-      resolve: (parent, args) => getMonthlyData(args.station)
+      resolve: (parent, args) => getMonthlyData(args.station),
     },
-    // todaysData: {
-    //   type: TodaysDataType,
-    //   args: { station: { type: GraphQLString } },
-    //   resolve: (parent, args) => getTodaysData(args.station)
-    // },
+    todaysData: {
+      type: TodaysDataType,
+      args: { station: { type: GraphQLString }, time: { type: GraphQLString } },
+      resolve: (parent, args) => getTodaysOrYesterdaysData(args, 'today'),
+    },
+    yesterdaysData: {
+      type: TodaysDataType,
+      args: { station: { type: GraphQLString }, time: { type: GraphQLString } },
+      resolve: (parent, args) => getTodaysOrYesterdaysData(args, 'yesterday'),
+    },
+    agriculturalDataReport: {
+      type: AgriculturalDataReportType,
+      resolve: () => getAgriculturalDataReport(),
+    },
     stationNames: {
       type: new GraphQLList(GraphQLString),
-      resolve: () => stationNamesForMonthlyDataEndpoint()
+      resolve: () => stationNamesForMonthlyDataEndpoint(),
     },
     stationNamesLowercase: {
-      type: new GraphQLList( GraphQLString ),
-      resolve: () => stationNamesForTodayYesterdayDataEndpoints()
+      type: new GraphQLList(GraphQLString),
+      resolve: () => stationNamesForTodayYesterdayDataEndpoints(),
     },
     // Don't know how this should be structured - need to check next time there's weather warnings
     warning: {
       type: WarningForecastType,
       async resolve() {
-        const warning = await getLiveTextForecast(
-          'xWarningPage'
-        );
+        const warning = await getLiveTextForecast('xWarningPage');
         return warning;
-      }
-    }
-  }
+      },
+    },
+  },
 });
 
 async function getMonthlyData(station) {
+  console.log(station);
   if (!station)
     throw new Error(
       `Provide station:stationName as an argument. Run stationNames query for a list of stations with monthlyData available.`
@@ -162,18 +177,29 @@ async function getMonthlyData(station) {
   }
 }
 
-async function getTodaysData(station) {
-
-  const url = ` https://prodapi.metweb.ie/observations/${station}/today`;
- 
+async function getTodaysOrYesterdaysData(args, day) {
+  const { station, time } = args;
+  const url = ` https://prodapi.metweb.ie/observations/${station}/${day}`;
+  console.log(station);
   try {
     const response = await axios.get(url);
-    const temp = new TodaysData(response.data);
+    const temp = new TodaysData(response.data, time);
     return temp.data;
   } catch (e) {
     throw new Error(
       `${e}. Use 'stationNamesLowercase' query for a list of stations with todays data available.`
     );
+  }
+}
+
+async function getAgriculturalDataReport() {
+  const url = `https://prodapi.metweb.ie/agriculture/report`;
+  try {
+    const response = await axios.get(url);
+    const temp = new AgriculturalDataReport(response.data);
+    return temp.data;
+  } catch (e) {
+    throw new Error(e);
   }
 }
 
@@ -270,5 +296,5 @@ async function regionalForecastResolver(args) {
 }
 
 module.exports = new GraphQLSchema({
-  query: RootQuery
+  query: RootQuery,
 });

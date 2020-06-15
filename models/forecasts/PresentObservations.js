@@ -1,6 +1,16 @@
 class PresentObservations {
-  constructor(data) {
-    this.forecast = this.tidyPresentObservations(data);
+  constructor(data, args) {
+    let allObservations = this.tidyPresentObservations(data);
+
+    // this is bad, should not put them in in the first place
+    if (args && args.length) { 
+      const stations = allObservations.stations.filter((observation) =>
+        args.includes(observation.name)
+      );
+      allObservations.stations = stations;
+    }
+
+    this.forecast = allObservations;
   }
 
   tidyPresentObservations(data) {
