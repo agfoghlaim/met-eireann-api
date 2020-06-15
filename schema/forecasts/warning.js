@@ -1,57 +1,45 @@
-const {
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLList
-} = require('graphql');
+const { GraphQLObjectType, GraphQLString, GraphQLList } = require('graphql');
 
-
-// const CrossReportType = new GraphQLObjectType({
-//   name: 'CrossReportType',
-//   fields: () => ({
-//     label: {type: GraphQLString},
-//     text: {type: GraphQLString}
-//   })
-// })
-
-const AwarenessLevelType = new GraphQLObjectType({
-  name: 'AwarenessLevelType',
+const GlobalAwarenessLevelType = new GraphQLObjectType({
+  name: 'GlobalAwarenessLevelType',
   fields: () => ({
-    warning: {type: GraphQLString},
-    colourcode: {type: GraphQLString}
-  })
-})
-
-const WarnTypeType = new GraphQLObjectType({
-  name: 'WarnTypeType',
-  fields: () => ({
-    name: {type: GraphQLString},
-    order: {type: GraphQLString},
-    maxAwarenessLevel: {type: GraphQLString},
-  })
-})
+    text: { type: GraphQLString },
+    colourcode: { type: GraphQLString },
+  }),
+});
 
 const WarningTypeType = new GraphQLObjectType({
   name: 'WarningTypeType',
   fields: () => ({
-    ID: {type: GraphQLString},
-    order: {type: GraphQLString},
-    IssueTime: {type: GraphQLString},
-    ValidFromTime: {type: GraphQLString},
-    ValidToTime: {type: GraphQLString},
-    Header: {type: GraphQLString},
-    WarnText: {type: GraphQLString},
-  })
-})
+    awarenessLevel: { type: GraphQLString },
+    issueTime: { type: GraphQLString },
+    validFromTime: { type: GraphQLString },
+    validToTime: { type: GraphQLString },
+    header: { type: GraphQLString },
+    warnText: { type: GraphQLString },
+  }),
+});
+const WarnTypeMeta = new GraphQLObjectType({
+  name: 'WarnTypeMeta',
+  fields: () => ({
+    id: { type: GraphQLString },
+    order: { type: GraphQLString },
+  }),
+});
+const WarnTypeType = new GraphQLObjectType({
+  name: 'WarnTypeType',
+  fields: () => ({
+    meta: { type: WarnTypeMeta },
+    warningType: { type: GraphQLList(WarningTypeType) },
+  }),
+});
 
 const WarningType = new GraphQLObjectType({
   name: 'WarningType',
   fields: () => ({
-    globalAwarenessLevel: { type: AwarenessLevelType},
-    warnType: {type: WarnTypeType},
-    warningType: {type: WarningTypeType}
- 
-  })
+    globalAwarenessLevel: { type: GlobalAwarenessLevelType },
+    warnType: { type: new GraphQLList(WarnTypeType) },
+  }),
 });
 
 module.exports = WarningType;
-

@@ -1,7 +1,7 @@
 class FarmingForecastModel {
   constructor(data) {
-    if(!data) return {};
-    this.forecast = this.flattenFarming(data)
+    if (!data) return {};
+    this.forecast = this.flattenFarming(data);
   }
 
   flattenFarming(forecast) {
@@ -9,12 +9,12 @@ class FarmingForecastModel {
     const short = forecast['farm-analysis'];
     const newData = {};
     newData.issued = short.issued[0].$['issued-time'];
-    keys.map((key)=>{
+    keys.map(key => {
       newData[`${key}`] = {
         title: short[`${key}`][0].$.title,
         text: short[`${key}`][0].text[0]
-      }
-    })
+      };
+    });
     return newData;
   }
 

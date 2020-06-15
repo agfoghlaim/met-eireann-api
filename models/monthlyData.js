@@ -3,10 +3,11 @@ class MonthlyDataModel {
     this.data = this.addUnderscoresToKeysWithNumbers(data);
   }
 
+  // Because GraphQL doesn't like number only keys. I'm also changing 'mean' keys to '_mean' cause it's more consistant (and easier)
   addUnderscoresToKeysWithNumbers(data) {
     const infoKeys = Object.keys(data);
 
-    // I'm also changing 'mean' keys to '_mean'
+   
     function renameKeysWithObjectsInsideAndDeleteOld(infoKey, data) {
       const short = data[infoKey].report;
       if (typeof data[infoKey] === 'object' && short) {

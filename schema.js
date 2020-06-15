@@ -27,8 +27,10 @@ const {
   WarningForecast,
   WebForecast
 } = require('./models/forecasts');
-const MonthlyData = require('./models/monthlyData')
 
+const MonthlyData = require('./models/monthlyData');
+// const TodaysData = require('./models/todaysData');
+const { stationNamesForMonthlyDataEndpoint, stationNamesForTodayYesterdayDataEndpoints } = require('./models/stations/stations');
 // Types
 const {
   BlockForecastType,
@@ -46,65 +48,8 @@ const {
   WebForecastType
 } = require('./schema/forecasts');
 const MonthlyDataType = require('./schema/monthlyData');
+// const TodaysDataType = require('./schema/todaysData');
 
-
-const LIST_OF_STATIONS_WITH_JSON_MONTHLY_DATA = [
-  'Valentia Observatory',
-  'Sherkin Island',
-  'Shannon Airport',
-  'Roches Point',
-  'Phoenix Park',
-  'Oak Park',
-  'Newport Furnace',
-  'Mullingar',
-  'Mount Dillon',
-  'Moore Park',
-  'Markree Castle', 
-  'Malin Head',
-  'Mace Head',
-  'Knock Airport',
-  'Johnstown Castle',
-  'Gurteen',
-  'Finner Camp',
-  'Dunsany (Grange)',
-  'Cork Airport',
-  'Claremorris',
-  'Casement Aerodrome',
-  'Belmullet',
-  'Ballyhaise',
-  'Athenry',
-  'Dublin Airport',
-  'Valentia Observatory',
-]
-
-const LIST_OF_STATIONS_WITH_JSON_YESTERDAY_DATA = [
-
-  'sherkin-island',
-  'shannon',
-  'roches-point',
-  'phoenix-park',
-  'oak-park', //
-  'newport-furnace', //
-  'mullingar', //
-  'mt-dillon', //
-  'moore-park', //
-  'Markree-Castle', //
-  'malin-head', //
-  'mace-head', //
-  'knock', //
-  'johnstown',
-  'gurteen', //
-  'finner', //
-  'dunsany', //
-  'cork', // airport
-  'claremorris', //
-  'casement', //
-  'belmullet', //
-  'ballyhaise', //
-  'athenry', //
-  'dublin', // airport
-  'valentia',
-]
 const REGIONAL_FORECAST_REGIONS = [
   'Connaught',
   'Munster',
@@ -169,39 +114,68 @@ const RootQuery = new GraphQLObjectType({
     },
     monthlyData: {
       type: MonthlyDataType,
-      args: {station: {type: GraphQLString}},
+      args: { station: { type: GraphQLString } },
       resolve: (parent, args) => getMonthlyData(args.station)
-    }
+    },
+    // todaysData: {
+    //   type: TodaysDataType,
+    //   args: { station: { type: GraphQLString } },
+    //   resolve: (parent, args) => getTodaysData(args.station)
+    // },
+    stationNames: {
+      type: new GraphQLList(GraphQLString),
+      resolve: () => stationNamesForMonthlyDataEndpoint()
+    },
+    stationNamesLowercase: {
+      type: new GraphQLList( GraphQLString ),
+      resolve: () => stationNamesForTodayYesterdayDataEndpoints()
+    },
     // Don't know how this should be structured - need to check next time there's weather warnings
-    // warning: {
-    //   type: WarningForecastType,
-    //   async resolve() {
-    //     const warning = await getLiveTextForecast(
-    //       'xWarningPage'
-    //     );
-    //     return warning;
-    //   }
-    // }
+    warning: {
+      type: WarningForecastType,
+      async resolve() {
+        const warning = await getLiveTextForecast(
+          'xWarningPage'
+        );
+        return warning;
+      }
+    }
   }
 });
 
 async function getMonthlyData(station) {
+  if (!station)
+    throw new Error(
+      `Provide station:stationName as an argument. Run stationNames query for a list of stations with monthlyData available.`
+    );
 
   //const url = `https://prodapi.metweb.ie/monthly-data/Sherkin%20Island`
-  const url = `https://prodapi.metweb.ie/monthly-data/${station}`
+  const url = `https://prodapi.metweb.ie/monthly-data/${station}`;
   try {
     const response = await axios.get(url);
- 
     const temp = new MonthlyData(response.data);
- 
     return temp.data;
+  } catch (e) {
+    throw new Error(
+      `${e}. Use 'stationNames' query for a list of stations with monthlyData available.`
+    );
   }
-  catch(e) {
-   throw new Error(e)
-  }
-
 }
-// getMonthlyData();
+
+async function getTodaysData(station) {
+
+  const url = ` https://prodapi.metweb.ie/observations/${station}/today`;
+ 
+  try {
+    const response = await axios.get(url);
+    const temp = new TodaysData(response.data);
+    return temp.data;
+  } catch (e) {
+    throw new Error(
+      `${e}. Use 'stationNamesLowercase' query for a list of stations with todays data available.`
+    );
+  }
+}
 
 function liveTextForecastModelByURI(uri) {
   switch (uri) {

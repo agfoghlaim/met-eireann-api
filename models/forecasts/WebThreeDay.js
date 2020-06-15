@@ -7,16 +7,16 @@ class WebThreeDayForecastModel {
     const newData = {};
     newData.time = data.forecast.$.time;
     newData.issued = data.forecast.$.issued;
-    newData.stations = data.forecast.station.map(s => {
+    newData.stations = data.forecast.station.map((s) => {
       return {
         id: s.id[0],
         location: s.location[0],
-        days: s.day.map(dayAtStation => {
+        days: s.day.map((dayAtStation) => {
           for (let [key, value] of Object.entries(dayAtStation)) {
             dayAtStation[key] = value[0];
           }
           return dayAtStation;
-        })
+        }),
       };
     });
 
@@ -25,4 +25,3 @@ class WebThreeDayForecastModel {
 }
 
 module.exports = WebThreeDayForecastModel;
-
