@@ -1,16 +1,14 @@
-// TODO - in schemaModels - everything is string - use GraphQLFloat etc.
 const {
   GraphQLObjectType,
   GraphQLString,
-  GraphQLInt,
   GraphQLSchema,
   GraphQLList,
-  GraphQLFloat,
   GraphQLEnumType,
 } = require('graphql');
 
 const axios = require('axios');
 const parseString = require('xml2js').parseString;
+const fs = require('fs');
 
 const DEFAULT_COORDINATES = {
   // Galway
@@ -18,7 +16,7 @@ const DEFAULT_COORDINATES = {
   longitude: '-9.0488889',
 };
 
-// Models
+// #region Import Models
 const {
   BlockForecast,
   SeaCrossingForecast,
@@ -42,7 +40,10 @@ const {
   stationNamesForMonthlyDataEndpoint,
   stationNamesForTodayYesterdayDataEndpoints,
 } = require('./models/stations/stations');
-// Types
+
+//#endregion
+
+// #region Import Types
 const {
   ForecastType,
   SeaCrossingForecastType,
@@ -62,8 +63,10 @@ const {
 const MonthlyDataType = require('./schema/monthlyData');
 const TodaysDataType = require('./schema/todaysData');
 const AgriculturalDataReportType = require('./schema/agriculturalDataReport');
+const StationDetailType = require('./schema/stationDetail');
+//#endregion
 
-// Inputs
+// #region Inputs
 const StationsInput = new GraphQLEnumType({
   name: 'StationsInput',
   values: {
@@ -137,6 +140,18 @@ const TimesInput = new GraphQLEnumType({
   },
 });
 
+const StationDetailInput = new GraphQLEnumType({
+  name: 'StationDetailInput',
+  description: 'Open or closed, default to all',
+  values: {
+    OPEN: { value: 'OPEN' },
+    CLOSED: { value: 'CLOSED' },
+    ALL: { value: 'ALL' },
+    MAIN: { value: 'MAIN' },
+  },
+});
+//#endregion
+
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
@@ -199,7 +214,7 @@ const RootQuery = new GraphQLObjectType({
       type: MonthlyDataType,
       args: { station: { type: GraphQLString } },
       args: { station: { type: StationsInput } },
-      resolve: (parent, args) => getMonthlyData(args.station),
+      resolve: (_, args) => getMonthlyData(args.station),
     },
     todaysData: {
       type: TodaysDataType,
@@ -236,10 +251,17 @@ const RootQuery = new GraphQLObjectType({
         return warning;
       },
     },
+    stationDetails: {
+      type: new GraphQLList(StationDetailType),
+      args: { stationType: { type: StationDetailInput } },
+      async resolve(_, args) {
+        return getStationDetailsLocal(args);
+      },
+    },
   },
 });
 
- //#region Resolver's functions
+//#region Resolver's functions
 
 async function getMonthlyData(station) {
   if (!station)
@@ -379,8 +401,23 @@ async function regionalForecastResolver(args) {
   return regionalForecast;
 }
 
- //#endregion endregion
+function getStationDetailsLocal({ stationType }) {
+  console.log(stationType);
+  const stations = JSON.parse(
+    fs.readFileSync('./data/stationDetails.json', 'utf8')
+  );
+  if (stationType === 'OPEN') {
+    return stations.filter((station) => station.closeYear === 0);
+  } else if (stationType === 'CLOSED') {
+    return stations.filter((station) => station.closeYear !== 0);
+  } else if (stationType === 'MAIN') {
+    return stations.filter((station) => station.main === true);
+  } else {
+    return stations;
+  }
+}
+//#endregion endregion
 
- module.exports = new GraphQLSchema({
+module.exports = new GraphQLSchema({
   query: RootQuery,
 });
