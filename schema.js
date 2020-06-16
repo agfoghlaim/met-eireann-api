@@ -17,6 +17,7 @@ const DEFAULT_COORDINATES = {
   latitude: '53.2719444',
   longitude: '-9.0488889',
 };
+
 // Models
 const {
   BlockForecast,
@@ -62,6 +63,7 @@ const MonthlyDataType = require('./schema/monthlyData');
 const TodaysDataType = require('./schema/todaysData');
 const AgriculturalDataReportType = require('./schema/agriculturalDataReport');
 
+// Inputs
 const StationsInput = new GraphQLEnumType({
   name: 'StationsInput',
   values: {
@@ -104,6 +106,37 @@ const RegionsInput = new GraphQLEnumType({
   },
 });
 
+const TimesInput = new GraphQLEnumType({
+  name: 'TimesInput',
+  description: "Reports are hourly. Eg _1 = '01:00'",
+  values: {
+    _1: { value: '01:00' },
+    _2: { value: '02:00' },
+    _3: { value: '03:00' },
+    _4: { value: '04:00' },
+    _5: { value: '05:00' },
+    _6: { value: '06:00' },
+    _7: { value: '07:00' },
+    _8: { value: '08:00' },
+    _9: { value: '09:00' },
+    _10: { value: '10:00' },
+    _11: { value: '11:00' },
+    _12: { value: '12:00' },
+    _13: { value: '13:00' },
+    _14: { value: '14:00' },
+    _15: { value: '15:00' },
+    _16: { value: '16:00' },
+    _17: { value: '17:00' },
+    _18: { value: '18:00' },
+    _19: { value: '19:00' },
+    _20: { value: '20:00' },
+    _21: { value: '21:00' },
+    _22: { value: '22:00' },
+    _23: { value: '23:00' },
+    _00: { value: '00:00' },
+  },
+});
+
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
@@ -125,7 +158,6 @@ const RootQuery = new GraphQLObjectType({
     },
     regionalForecast: {
       type: RegionalForecastType,
-      // args: { region: { type: GraphQLString } },
       args: { region: { type: RegionsInput } },
       resolve: (parent, args) => regionalForecastResolver(args),
     },
@@ -166,17 +198,23 @@ const RootQuery = new GraphQLObjectType({
     monthlyData: {
       type: MonthlyDataType,
       args: { station: { type: GraphQLString } },
+      args: { station: { type: StationsInput } },
       resolve: (parent, args) => getMonthlyData(args.station),
     },
     todaysData: {
       type: TodaysDataType,
-      // args: { station: { type: GraphQLString }, time: { type: GraphQLString } },
-      args: { station: { type: StationsInput }, time: { type: GraphQLString } },
+      args: {
+        station: { type: StationsInput },
+        times: { type: new GraphQLList(TimesInput) },
+      },
       resolve: (parent, args) => getTodaysOrYesterdaysData(args, 'today'),
     },
     yesterdaysData: {
       type: TodaysDataType,
-      args: { station: { type: GraphQLString }, time: { type: GraphQLString } },
+      args: {
+        station: { type: StationsInput },
+        times: { type: new GraphQLList(TimesInput) },
+      },
       resolve: (parent, args) => getTodaysOrYesterdaysData(args, 'yesterday'),
     },
     agriculturalDataReport: {
@@ -191,7 +229,6 @@ const RootQuery = new GraphQLObjectType({
       type: new GraphQLList(GraphQLString),
       resolve: () => stationNamesForTodayYesterdayDataEndpoints(),
     },
-    // Don't know how this should be structured - need to check next time there's weather warnings
     warning: {
       type: WarningForecastType,
       async resolve() {
@@ -202,13 +239,14 @@ const RootQuery = new GraphQLObjectType({
   },
 });
 
+ //#region Resolver's functions
+
 async function getMonthlyData(station) {
   if (!station)
     throw new Error(
       `Provide station:stationName as an argument. Run stationNames query for a list of stations with monthlyData available.`
     );
 
-  //const url = `https://prodapi.metweb.ie/monthly-data/Sherkin%20Island`
   const url = `https://prodapi.metweb.ie/monthly-data/${station}`;
   try {
     const response = await axios.get(url);
@@ -222,14 +260,13 @@ async function getMonthlyData(station) {
 }
 
 async function getTodaysOrYesterdaysData(args, day) {
-  const { station, time } = args;
+  const { station, times } = args;
 
   const url = ` https://prodapi.metweb.ie/observations/${station}/${day}`;
 
   try {
     const response = await axios.get(url);
-
-    const temp = new TodaysData(response.data, time);
+    const temp = new TodaysData(response.data, times); // badly named!
     return temp.data;
   } catch (e) {
     throw new Error(
@@ -297,7 +334,7 @@ function XMLToJson(xml) {
 
 async function getLiveTextForecast(liveTextForecastType, args) {
   const url = `https://www.met.ie/Open_Data/xml/${liveTextForecastType}.xml`;
- 
+
   try {
     const xmlResponse = await axios.get(url);
     const parsedResponse = XMLToJson(xmlResponse.data);
@@ -319,7 +356,7 @@ async function getBlockForecast({ lat = '53.2719444', long = '-9.0488889' }) {
     lat = latitude;
     long = longitude;
   }
-  // const url = `http://metwdb-openaccess.ichec.ie/metno-wdb2ts/locationforecast?lat=53.2719444;long=-9.0488889`;
+
   const url = `http://metwdb-openaccess.ichec.ie/metno-wdb2ts/locationforecast?lat=${lat};long=${long}`;
 
   try {
@@ -336,18 +373,14 @@ async function getBlockForecast({ lat = '53.2719444', long = '-9.0488889' }) {
 }
 
 async function regionalForecastResolver(args) {
-
   if (!args.region) throw new Error('Please set region');
 
-  // if (!REGIONAL_FORECAST_REGIONS.includes(args.region)) {
-  //   throw new Error(
-  //     'Please set region. Available regions are Connaught, Munster, Leinster, Ulster, Dublin'
-  //   );
-  // }
   const regionalForecast = await getLiveTextForecast(`x${args.region}`);
   return regionalForecast;
 }
 
-module.exports = new GraphQLSchema({
+ //#endregion endregion
+
+ module.exports = new GraphQLSchema({
   query: RootQuery,
 });
