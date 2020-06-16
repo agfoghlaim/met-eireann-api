@@ -4,7 +4,9 @@ class ForecastBlockModel {
   constructor(config) {
     // TODO deal with meta
     const weatherForeCasts = config.weatherdata.product[0].time;
-
+   
+    const niceMeta = this.doMeta(config.weatherdata.meta[0])
+ 
     const forecastsInDreamFormat = [
       this.filterDuplicateTimes,
       this.formBasicStructure,
@@ -14,10 +16,29 @@ class ForecastBlockModel {
     ].reduce((weatherForeCasts, fn) => {
       return fn(weatherForeCasts);
     }, weatherForeCasts);
+    // forecastsInDreamFormat.models = niceMeta;
+    this.forecasts = {}
 
-    this.forecasts = forecastsInDreamFormat;
+    this.forecasts.forecasts = forecastsInDreamFormat;
+    this.forecasts.models = niceMeta
+
   }
 
+  doMeta(meta) {
+    // console.log(meta[0].model)
+    return meta.model.map(m=>{
+  
+     const short = m.$;
+      return {
+        name: short.name,
+        termin: short.termin,
+        runEnded: short.runended,
+        nextRun: short.nextrun,
+        from: short.from,
+        to: short.to
+      }
+    })
+  }
   static keyExists(prop, location) {
     if (location.hasOwnProperty(prop)) {
       return true;
@@ -38,7 +59,8 @@ class ForecastBlockModel {
       'lowClouds',
       'mediumClouds',
       'highClouds',
-      'dewpointTemperature'
+      'dewpointTemperature',
+      'globalRadiation'
     ];
   }
 
@@ -46,6 +68,7 @@ class ForecastBlockModel {
     const meDataCopy = meData;
     meData = meData.map(forecast => {
       return {
+        
         from: forecast.$.from,
         to: forecast.$.to,
         location: forecast.location[0].$,

@@ -6,11 +6,17 @@ const {
   GraphQLSchema,
   GraphQLList,
   GraphQLFloat,
+  GraphQLEnumType,
 } = require('graphql');
 
 const axios = require('axios');
 const parseString = require('xml2js').parseString;
 
+const DEFAULT_COORDINATES = {
+  // Galway
+  latitude: '53.2719444',
+  longitude: '-9.0488889',
+};
 // Models
 const {
   BlockForecast,
@@ -37,7 +43,7 @@ const {
 } = require('./models/stations/stations');
 // Types
 const {
-  BlockForecastType,
+  ForecastType,
   SeaCrossingForecastType,
   CountyForecastType,
   RegionalForecastType,
@@ -51,23 +57,60 @@ const {
   WarningForecastType,
   WebForecastType,
 } = require('./schema/forecasts');
+
 const MonthlyDataType = require('./schema/monthlyData');
 const TodaysDataType = require('./schema/todaysData');
 const AgriculturalDataReportType = require('./schema/agriculturalDataReport');
 
-const REGIONAL_FORECAST_REGIONS = [
-  'Connaught',
-  'Munster',
-  'Leinster',
-  'Ulster',
-  'Dublin',
-];
+const StationsInput = new GraphQLEnumType({
+  name: 'StationsInput',
+  values: {
+    VALENTIA_OBSERVATORY: { value: 'valentia' },
+    SHERKIN_ISLAND: { value: 'sherkin-island' },
+    SHANNON_AIRPORT: { value: 'shannon' },
+    ROCHES_POINT: { value: 'roches-point' },
+    PHOENIX_PARK: { value: 'phoenix-park' },
+    OAK_PARK: { value: 'oak-park' },
+    NEWPORT_FURNACE: { value: 'newport-furnace' },
+    MULLINGAR: { value: 'newport-furnace' },
+    MOUNT_DILLON: { value: 'mt-dillon' },
+    MOORE_PARK: { value: 'moore-parkk' },
+    MARKREE_CASTLE: { value: 'Markree-Castle' },
+    MALIN_HEAD: { value: 'malin-head' },
+    MACE_HEAD: { value: 'mace-head' },
+    KNOCK_AIRPORT: { value: 'knock' },
+    JOHNSTOWN_CASTLE: { value: 'johnstown' },
+    GURTEEN: { value: 'gurteen' },
+    FINNER_CAMP: { value: 'finner' },
+    DUNSANY_GRANGE: { value: 'dunsany' },
+    CORK_AIRPORT: { value: 'cork' },
+    CLAREMORRIS: { value: 'claremorris' },
+    CASEMENT_AERODROME: { value: 'casement' },
+    BELMULLET: { value: 'belmullet' },
+    BALLYHAISE: { value: 'ballyhaise' },
+    ATHENRY: { value: 'athenry' },
+    DUBLIN_AIRPORT: { value: 'dublin' },
+  },
+});
+
+const RegionsInput = new GraphQLEnumType({
+  name: 'RegionsInput',
+  values: {
+    CONNAUGHT: { value: 'Connacht' }, // this is how MÉ spell it, must have capital letter!
+    ULSTER: { value: 'Ulster' }, // must have capital letter.
+    LEINSTER: { value: 'Leinster' }, // must have capital letter.
+    MUNSTER: { value: 'Munster' }, // must have capital letter.
+    DUBLIN: { value: 'Dublin' }, // must have capital letter.
+  },
+});
+
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
     forecasts: {
-      type: new GraphQLList(BlockForecastType),
-      resolve: async (parent, args) => await getBlockForecast(),
+      type: ForecastType,
+      args: { lat: { type: GraphQLString }, long: { type: GraphQLString } },
+      resolve: async (parent, args) => await getBlockForecast(args),
     },
     seaCrossings: {
       type: SeaCrossingForecastType,
@@ -82,7 +125,8 @@ const RootQuery = new GraphQLObjectType({
     },
     regionalForecast: {
       type: RegionalForecastType,
-      args: { region: { type: GraphQLString } },
+      // args: { region: { type: GraphQLString } },
+      args: { region: { type: RegionsInput } },
       resolve: (parent, args) => regionalForecastResolver(args),
     },
     nationalForecast: {
@@ -126,7 +170,8 @@ const RootQuery = new GraphQLObjectType({
     },
     todaysData: {
       type: TodaysDataType,
-      args: { station: { type: GraphQLString }, time: { type: GraphQLString } },
+      // args: { station: { type: GraphQLString }, time: { type: GraphQLString } },
+      args: { station: { type: StationsInput }, time: { type: GraphQLString } },
       resolve: (parent, args) => getTodaysOrYesterdaysData(args, 'today'),
     },
     yesterdaysData: {
@@ -158,7 +203,6 @@ const RootQuery = new GraphQLObjectType({
 });
 
 async function getMonthlyData(station) {
-  console.log(station);
   if (!station)
     throw new Error(
       `Provide station:stationName as an argument. Run stationNames query for a list of stations with monthlyData available.`
@@ -179,10 +223,12 @@ async function getMonthlyData(station) {
 
 async function getTodaysOrYesterdaysData(args, day) {
   const { station, time } = args;
+
   const url = ` https://prodapi.metweb.ie/observations/${station}/${day}`;
-  console.log(station);
+
   try {
     const response = await axios.get(url);
+
     const temp = new TodaysData(response.data, time);
     return temp.data;
   } catch (e) {
@@ -251,7 +297,7 @@ function XMLToJson(xml) {
 
 async function getLiveTextForecast(liveTextForecastType, args) {
   const url = `https://www.met.ie/Open_Data/xml/${liveTextForecastType}.xml`;
-
+ 
   try {
     const xmlResponse = await axios.get(url);
     const parsedResponse = XMLToJson(xmlResponse.data);
@@ -267,8 +313,14 @@ async function getLiveTextForecast(liveTextForecastType, args) {
   }
 }
 
-async function getBlockForecast() {
-  const url = `http://metwdb-openaccess.ichec.ie/metno-wdb2ts/locationforecast?lat=53.2719444;long=-9.0488889`;
+async function getBlockForecast({ lat = '53.2719444', long = '-9.0488889' }) {
+  if (!lat || !long) {
+    const { latitude, longitude } = DEFAULT_COORDINATES;
+    lat = latitude;
+    long = longitude;
+  }
+  // const url = `http://metwdb-openaccess.ichec.ie/metno-wdb2ts/locationforecast?lat=53.2719444;long=-9.0488889`;
+  const url = `http://metwdb-openaccess.ichec.ie/metno-wdb2ts/locationforecast?lat=${lat};long=${long}`;
 
   try {
     let xmlResponse = await axios.get(url);
@@ -284,13 +336,14 @@ async function getBlockForecast() {
 }
 
 async function regionalForecastResolver(args) {
+
   if (!args.region) throw new Error('Please set region');
 
-  if (!REGIONAL_FORECAST_REGIONS.includes(args.region)) {
-    throw new Error(
-      'Please set region. Available regions are Connaught, Munster, Leinster, Ulster, Dublin'
-    );
-  }
+  // if (!REGIONAL_FORECAST_REGIONS.includes(args.region)) {
+  //   throw new Error(
+  //     'Please set region. Available regions are Connaught, Munster, Leinster, Ulster, Dublin'
+  //   );
+  // }
   const regionalForecast = await getLiveTextForecast(`x${args.region}`);
   return regionalForecast;
 }

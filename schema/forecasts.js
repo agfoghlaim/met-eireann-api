@@ -1,5 +1,6 @@
 const forecastTypes = {
-  BlockForecastType: require('./forecasts/block'),
+  ForecastType: require('./forecasts/block'),
+  // BlockForecastType: require('./forecasts/block'),
   SeaCrossingForecastType: require('./forecasts/seaCrossing'),
   CountyForecastType: require('./forecasts/county'),
   RegionalForecastType: require('./forecasts/regional'),
