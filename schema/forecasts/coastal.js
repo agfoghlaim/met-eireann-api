@@ -7,7 +7,7 @@ const {
 
 
 const CostalReportType = new GraphQLObjectType({
-  name: 'CostalReportType',
+  name: 'CostalReport',
   fields: () => ({
     label: {type: GraphQLString},
     text: {type: GraphQLString}
@@ -15,7 +15,7 @@ const CostalReportType = new GraphQLObjectType({
 })
 
 const CostalType = new GraphQLObjectType({
-  name: 'CostalType',
+  name: 'Costal',
   fields: () => ({
     title: { type: GraphQLString },
     validTime: {type: GraphQLString},

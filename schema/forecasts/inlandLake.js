@@ -6,7 +6,7 @@ const {
 
 
 const OverviewType = new GraphQLObjectType({
-  name: 'OverviewType',
+  name: 'Overview',
   fields: () => ({
     time: {type: GraphQLString},
     head: {type: GraphQLString},
@@ -15,7 +15,7 @@ const OverviewType = new GraphQLObjectType({
 })
 
 const LakeType = new GraphQLObjectType({
-  name: 'LakeType',
+  name: 'Lake',
   fields: () => ({
     area: {type: GraphQLString},
     wind: {type: GraphQLString},

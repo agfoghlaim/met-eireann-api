@@ -2,7 +2,7 @@ const { GraphQLObjectType, GraphQLString, GraphQLList } = require('graphql');
 
 // TODO - this is the same type as in webThreeDayForecas
 const DayType_WebForecast = new GraphQLObjectType({
-  name: 'DayType_WebForecast',
+  name: 'Day_WebForecast',
   fields: () => ({
     day_num: { type: GraphQLString },
     date: { type: GraphQLString },
@@ -20,7 +20,7 @@ const DayType_WebForecast = new GraphQLObjectType({
 });
 
 const StationType_WebForecast = new GraphQLObjectType({
-  name: 'StationType_WebForecast',
+  name: 'Station_WebForecast',
   fields: () => ({
     id: { type: GraphQLString },
     location: { type: GraphQLString },
@@ -29,7 +29,7 @@ const StationType_WebForecast = new GraphQLObjectType({
 });
 
 const WebForecastType = new GraphQLObjectType({
-  name: 'WebForecastType',
+  name: 'WebForecast',
   fields: () => ({
     // test: {type: GraphQLString}
     time: { type: GraphQLString },

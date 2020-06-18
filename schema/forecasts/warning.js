@@ -35,7 +35,7 @@ const WarnTypeType = new GraphQLObjectType({
 });
 
 const WarningType = new GraphQLObjectType({
-  name: 'WarningType',
+  name: 'Warning',
   fields: () => ({
     globalAwarenessLevel: { type: GlobalAwarenessLevelType },
     warnType: { type: new GraphQLList(WarnTypeType) },

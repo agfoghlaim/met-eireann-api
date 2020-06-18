@@ -8,7 +8,7 @@ const {
 
 
 const  CountyForecastType = new GraphQLObjectType({
-  name: 'CountyForecastType',
+  name: 'CountyForecast',
   fields: () => ({
     time: {type: GraphQLString},
     issued: {type: GraphQLString},
@@ -17,7 +17,7 @@ const  CountyForecastType = new GraphQLObjectType({
 })
 
 const CountyType = new GraphQLObjectType({
-  name: 'CountyType',
+  name: 'County',
   fields: () => ({
     name: {type: GraphQLString},
     days: {type: new GraphQLList(DayType)}
@@ -25,7 +25,7 @@ const CountyType = new GraphQLObjectType({
 })
 
 const WindspeedType = new GraphQLObjectType({
-  name: 'WindspeedType',
+  name: 'Windspeed',
   fields: () => ({
     value: {type: GraphQLInt},
     units: {type: GraphQLString}
@@ -34,7 +34,7 @@ const WindspeedType = new GraphQLObjectType({
 
 
 const DayType = new GraphQLObjectType({
-  name: 'DayType',
+  name: 'Day',
   fields: () => ({
     day_num: {type: GraphQLInt},
     date: {type: GraphQLString},

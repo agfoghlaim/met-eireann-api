@@ -97,14 +97,14 @@ fields: () => ({
 })
 })
 const ValidType = new GraphQLObjectType({
-  name: 'ValidType',
+  name: 'Valid',
   fields: () => ({
     from: {type: GraphQLString},
     to: {type: GraphQLString},
   })
 })
 const AgriculturalDataReportType = new GraphQLObjectType({
-  name: 'AgriculturalDataReportType',
+  name: 'AgriculturalDataReport',
   fields: () => ({
     valid: {type: ValidType},
     station: { type: new GraphQLList(Station) }

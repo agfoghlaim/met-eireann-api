@@ -19,17 +19,11 @@ const HourlyDataType = new GraphQLObjectType({
     reportTime: { type: GraphQLString }
   })
 });
-// const TodaysDataType = new GraphQLObjectType({
-//   name: 'TodaysData',
-//   fields: () => ({
-//     hourly: { type: new GraphQLList( HourlyDataType )}
-//   })
-// });
+
 
 const TodaysDataType = new GraphQLObjectType({
-  name: 'TodaysDataType',
+  name: 'TodaysYesterdaysData',
   fields: () => ({
-    // hourly: { type: GraphQLString}
     hourly: { type: new GraphQLList(HourlyDataType) }
   })
 });

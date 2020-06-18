@@ -5,7 +5,7 @@ const {
 } = require('graphql');
 
 const OutlookType = new GraphQLObjectType({
-  name:'OutlookType',
+  name:'Outlook',
   fields: () =>({
     region: {type: GraphQLString},
     issued: {type: GraphQLString},

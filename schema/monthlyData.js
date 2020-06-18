@@ -6,7 +6,7 @@ const {
 
 
 const MonthsAndTotalType = new GraphQLObjectType({
-  name: 'MonthsAndTotalType',
+  name: 'MonthsAndTotal',
   fields: () => ({
     january: { type: GraphQLString},
     february: { type: GraphQLString },
@@ -24,7 +24,7 @@ const MonthsAndTotalType = new GraphQLObjectType({
   })
 });
 const MonthsAndAnnualType = new GraphQLObjectType({
-  name: 'MonthsAndAnnualType',
+  name: 'MonthsAndAnnual',
   fields: () => ({
     january: { type: GraphQLString},
     february: { type: GraphQLString },
@@ -53,7 +53,7 @@ const ReportContents = new GraphQLObjectType({
 });
 
 const ReportType = new GraphQLObjectType({
-  name: 'ReportType',
+  name: 'Report',
   fields: () => ({
     report: { type: ReportContents },
    

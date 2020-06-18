@@ -1,7 +1,7 @@
 const { GraphQLObjectType, GraphQLString, GraphQLList } = require('graphql');
 
 const ValueAndUnitType = new GraphQLObjectType({
-  name: 'ValueAndUnitType',
+  name: 'ValueAndUnit',
   fields: () => ({
     value: { type: GraphQLString },
     unit: { type: GraphQLString }
@@ -24,7 +24,7 @@ const StationType = new GraphQLObjectType({
 });
 
 const PresentObservationsType = new GraphQLObjectType({
-  name: 'PresentObservationsType',
+  name: 'PresentObservations',
   fields: () => ({
     time: { type: GraphQLString },
     stations: { type: new GraphQLList(StationType) }

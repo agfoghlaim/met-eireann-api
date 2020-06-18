@@ -5,7 +5,7 @@ const {
 } = require('graphql');
 
 const RegionalForecastType = new GraphQLObjectType({
-  name:'RegionalForecastType',
+  name:'RegionalForecast',
   fields: () =>({
     region: {type: GraphQLString},
     issued: {type: GraphQLString},

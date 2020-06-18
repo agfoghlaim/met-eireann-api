@@ -1,7 +1,7 @@
 const { GraphQLObjectType, GraphQLString, GraphQLList } = require('graphql');
 
 const DayType_WebThreeDay = new GraphQLObjectType({
-  name: 'DayType_WebThreeDay',
+  name: 'Day_WebThreeDay',
   fields: () => ({
     day_num: { type: GraphQLString },
     date: { type: GraphQLString },
@@ -19,7 +19,7 @@ const DayType_WebThreeDay = new GraphQLObjectType({
 });
 
 const StationType_WebThreeDay = new GraphQLObjectType({
-  name: 'StationType_WebThreeDay',
+  name: 'Station_WebThreeDay',
   fields: () => ({
     id: { type: GraphQLString },
     location: { type: GraphQLString },
@@ -28,7 +28,7 @@ const StationType_WebThreeDay = new GraphQLObjectType({
 });
 
 const WebThreeDayForecastType = new GraphQLObjectType({
-  name: 'WebThreeDayForecastType',
+  name: 'WebThreeDayForecast',
   fields: () => ({
     time: { type: GraphQLString },
     issued: { type: GraphQLString },

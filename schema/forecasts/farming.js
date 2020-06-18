@@ -14,7 +14,7 @@ const TwoTextFields = new GraphQLObjectType({
 })
 
 const FarmingForecastType = new GraphQLObjectType({
-  name: 'FarmingForecastType',
+  name: 'FarmingForecast',
   fields: () => ({
     issued: { type: GraphQLString },
    rain: {type: TwoTextFields},
