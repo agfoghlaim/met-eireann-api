@@ -1,11 +1,11 @@
 class AgricultureDataReportModel {
   constructor(data) {
-    console.log(data);
+
     this.data = {
       valid: this.doValid(data.report.valid),
       station: this.doStation(data.report.station)
     };
-    console.log(this.data)
+  
   }
 
   doValid(valid) {

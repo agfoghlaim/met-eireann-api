@@ -4,40 +4,37 @@ class ForecastBlockModel {
   constructor(config) {
     // TODO deal with meta
     const weatherForeCasts = config.weatherdata.product[0].time;
-   
-    const niceMeta = this.doMeta(config.weatherdata.meta[0])
- 
+
+    const niceMeta = this.doMeta(config.weatherdata.meta[0]);
+
     const forecastsInDreamFormat = [
       this.filterDuplicateTimes,
       this.formBasicStructure,
       this.flattenMainForecast,
       this.insertPrecipitationForecast,
-      this.flattenPrecipitationForecast
+      this.flattenPrecipitationForecast,
     ].reduce((weatherForeCasts, fn) => {
       return fn(weatherForeCasts);
     }, weatherForeCasts);
-    // forecastsInDreamFormat.models = niceMeta;
-    this.forecasts = {}
+
+    this.forecasts = {};
 
     this.forecasts.forecasts = forecastsInDreamFormat;
-    this.forecasts.models = niceMeta
-
+    this.forecasts.models = niceMeta;
   }
 
   doMeta(meta) {
-    // console.log(meta[0].model)
-    return meta.model.map(m=>{
-  
-     const short = m.$;
+    return meta.model.map((m) => {
+      const short = m.$;
       return {
         name: short.name,
         termin: short.termin,
         runEnded: short.runended,
         nextRun: short.nextrun,
         from: short.from,
-        to: short.to
-      }
-    })
+        to: short.to,
+      };
+    });
   }
   static keyExists(prop, location) {
     if (location.hasOwnProperty(prop)) {
@@ -47,7 +44,6 @@ class ForecastBlockModel {
     }
   }
 
-  
   static possibleBlockAKeys() {
     return [
       'temperature',
@@ -60,19 +56,18 @@ class ForecastBlockModel {
       'mediumClouds',
       'highClouds',
       'dewpointTemperature',
-      'globalRadiation'
+      'globalRadiation',
     ];
   }
 
   formBasicStructure(meData) {
     const meDataCopy = meData;
-    meData = meData.map(forecast => {
+    meData = meData.map((forecast) => {
       return {
-        
         from: forecast.$.from,
         to: forecast.$.to,
         location: forecast.location[0].$,
-        mainForecast: forecast.location[0]
+        mainForecast: forecast.location[0],
       };
     });
     meData.tempPrecipitationForecasts = meDataCopy.tempPrecipitationForecasts;
@@ -80,11 +75,11 @@ class ForecastBlockModel {
   }
 
   flattenMainForecast(meData) {
-    meData.map(forecast => {
+    meData.map((forecast) => {
       const mainForecast = forecast.mainForecast;
       const forecastDetails = {};
       const possibleBlockAKeys = ForecastBlockModel.possibleBlockAKeys();
-      possibleBlockAKeys.forEach(key => {
+      possibleBlockAKeys.forEach((key) => {
         if (ForecastBlockModel.keyExists(key, mainForecast)) {
           forecastDetails[key] = mainForecast[`${key}`][0].$;
         }
@@ -98,7 +93,7 @@ class ForecastBlockModel {
   filterDuplicateTimes(meData) {
     // for every forecast there's the main one (Block A in xml) and one for precipitation and symbol/icon (Block B in xml). This function filters for the main forecast and also keeps a copy of the leftover precipitationForecasts to deal with later.
     const tempPrecipitationForecasts = [];
-    meData = meData.filter(forecast => {
+    meData = meData.filter((forecast) => {
       if (
         // ie. if it is a 'Block B' precipitation/symbol forecast
         forecast.location[0].precipitation &&
@@ -116,7 +111,7 @@ class ForecastBlockModel {
   }
 
   flattenPrecipitationForecast(meData) {
-    meData.map(forecast => {
+    meData.map((forecast) => {
       if (!forecast.precipitationForecast) return;
       const flatForecast = {};
       const short = forecast.precipitationForecast.location[0];
@@ -132,7 +127,7 @@ class ForecastBlockModel {
 
   insertPrecipitationForecast(meData) {
     // sort the temporary Block B precipitation forecasts into their corresponding object (by time)
-    meData.forEach(forecast => {
+    meData.forEach((forecast) => {
       let ans = meData.tempPrecipitationForecasts.find((temp, i) => {
         return temp.$.from === forecast.from;
       });

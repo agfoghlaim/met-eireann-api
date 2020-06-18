@@ -5,7 +5,7 @@ const {
   GraphQLList,
   GraphQLEnumType,
 } = require('graphql');
-
+const CSVToJSON = require('csvtojson');
 const axios = require('axios');
 const parseString = require('xml2js').parseString;
 const fs = require('fs');
@@ -32,7 +32,6 @@ const {
   WarningForecast,
   WebForecast,
 } = require('./models/forecasts');
-
 const MonthlyData = require('./models/monthlyData');
 const TodaysData = require('./models/todaysData');
 const AgriculturalDataReport = require('./models/agriculturalDataReport');
@@ -43,7 +42,7 @@ const {
 
 //#endregion
 
-// #region Import Types
+// #region Import Main Types
 const {
   ForecastType,
   SeaCrossingForecastType,
@@ -59,108 +58,32 @@ const {
   WarningForecastType,
   WebForecastType,
 } = require('./schema/forecasts');
-
 const MonthlyDataType = require('./schema/monthlyData');
 const TodaysDataType = require('./schema/todaysData');
 const AgriculturalDataReportType = require('./schema/agriculturalDataReport');
 const StationDetailType = require('./schema/stationDetail');
+const DailyDataType = require('./schema/dailyData');
 //#endregion
 
-// #region Inputs
-const StationsInput = new GraphQLEnumType({
-  name: 'StationsInput',
-  values: {
-    VALENTIA_OBSERVATORY: { value: 'valentia' },
-    SHERKIN_ISLAND: { value: 'sherkin-island' },
-    SHANNON_AIRPORT: { value: 'shannon' },
-    ROCHES_POINT: { value: 'roches-point' },
-    PHOENIX_PARK: { value: 'phoenix-park' },
-    OAK_PARK: { value: 'oak-park' },
-    NEWPORT_FURNACE: { value: 'newport-furnace' },
-    MULLINGAR: { value: 'newport-furnace' },
-    MOUNT_DILLON: { value: 'mt-dillon' },
-    MOORE_PARK: { value: 'moore-parkk' },
-    MARKREE_CASTLE: { value: 'Markree-Castle' },
-    MALIN_HEAD: { value: 'malin-head' },
-    MACE_HEAD: { value: 'mace-head' },
-    KNOCK_AIRPORT: { value: 'knock' },
-    JOHNSTOWN_CASTLE: { value: 'johnstown' },
-    GURTEEN: { value: 'gurteen' },
-    FINNER_CAMP: { value: 'finner' },
-    DUNSANY_GRANGE: { value: 'dunsany' },
-    CORK_AIRPORT: { value: 'cork' },
-    CLAREMORRIS: { value: 'claremorris' },
-    CASEMENT_AERODROME: { value: 'casement' },
-    BELMULLET: { value: 'belmullet' },
-    BALLYHAISE: { value: 'ballyhaise' },
-    ATHENRY: { value: 'athenry' },
-    DUBLIN_AIRPORT: { value: 'dublin' },
-  },
-});
-
-const RegionsInput = new GraphQLEnumType({
-  name: 'RegionsInput',
-  values: {
-    CONNAUGHT: { value: 'Connacht' }, // this is how MÉ spell it, must have capital letter!
-    ULSTER: { value: 'Ulster' }, // must have capital letter.
-    LEINSTER: { value: 'Leinster' }, // must have capital letter.
-    MUNSTER: { value: 'Munster' }, // must have capital letter.
-    DUBLIN: { value: 'Dublin' }, // must have capital letter.
-  },
-});
-
-const TimesInput = new GraphQLEnumType({
-  name: 'TimesInput',
-  description: "Reports are hourly. Eg _1 = '01:00'",
-  values: {
-    _1: { value: '01:00' },
-    _2: { value: '02:00' },
-    _3: { value: '03:00' },
-    _4: { value: '04:00' },
-    _5: { value: '05:00' },
-    _6: { value: '06:00' },
-    _7: { value: '07:00' },
-    _8: { value: '08:00' },
-    _9: { value: '09:00' },
-    _10: { value: '10:00' },
-    _11: { value: '11:00' },
-    _12: { value: '12:00' },
-    _13: { value: '13:00' },
-    _14: { value: '14:00' },
-    _15: { value: '15:00' },
-    _16: { value: '16:00' },
-    _17: { value: '17:00' },
-    _18: { value: '18:00' },
-    _19: { value: '19:00' },
-    _20: { value: '20:00' },
-    _21: { value: '21:00' },
-    _22: { value: '22:00' },
-    _23: { value: '23:00' },
-    _00: { value: '00:00' },
-  },
-});
-
-const StationDetailInput = new GraphQLEnumType({
-  name: 'StationDetailInput',
-  description: 'Open or closed, default to all',
-  values: {
-    OPEN: { value: 'OPEN' },
-    CLOSED: { value: 'CLOSED' },
-    ALL: { value: 'ALL' },
-    MAIN: { value: 'MAIN' },
-  },
-});
-//#endregion
+// Input Types
+const {
+  StationsInput,
+  RegionsInput,
+  TimesInput,
+  StationDetailInput,
+  DailyDataInput,
+} = require('./inputTypes/inputTypes');
+const { resolve } = require('path');
 
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
-    forecasts: {
+    forecast: {
       type: ForecastType,
       args: { lat: { type: GraphQLString }, long: { type: GraphQLString } },
       resolve: async (parent, args) => await getBlockForecast(args),
     },
-    seaCrossings: {
+    seaCrossing: {
       type: SeaCrossingForecastType,
       resolve: async (parent, args) =>
         await getLiveTextForecast('xsea_crossings'),
@@ -195,7 +118,7 @@ const RootQuery = new GraphQLObjectType({
     presentObservations: {
       type: PresentObservationsForecastType,
       args: { stations: { type: new GraphQLList(GraphQLString) } },
-      resolve: async (parent, args) =>
+      resolve: async (_, args) =>
         await getLiveTextForecast('obs_present', args.stations),
     },
     outlook: {
@@ -258,6 +181,14 @@ const RootQuery = new GraphQLObjectType({
         return getStationDetailsLocal(args);
       },
     },
+    dailyData: {
+      type: new GraphQLList(DailyDataType),
+      description: 'To get specific dates use "dates: ["14-aug-2004", "14-aug-2018","14-aug-2020"]"',
+      args: { station: { type: DailyDataInput }, dates: { type: new GraphQLList(GraphQLString) } },
+      async resolve(_, args) {
+        return getDailyData(args);
+      },
+    }
   },
 });
 
@@ -402,7 +333,6 @@ async function regionalForecastResolver(args) {
 }
 
 function getStationDetailsLocal({ stationType }) {
-  console.log(stationType);
   const stations = JSON.parse(
     fs.readFileSync('./data/stationDetails.json', 'utf8')
   );
@@ -415,6 +345,36 @@ function getStationDetailsLocal({ stationType }) {
   } else {
     return stations;
   }
+}
+
+// was going to rename keys to something sensible but will do another query to get what they mean instead. TODO
+
+async function getDailyData({ station, dates }) {
+  const stationNumber = station;
+  const athenryDailyData = `https://cli.fusio.net/cli/climate_data/webdata/dly${stationNumber}.csv`;
+  const response = await axios({
+    method: 'GET',
+    url: athenryDailyData,
+    // responseType: 'stream',
+  });
+
+  // remove everything before the first column name in the csv file.
+  const startAndMain = response.data.toString().split('Indicator (i)');
+  const mainCSV = startAndMain.pop().trim();
+
+  const ans = CSVToJSON({ ignoreEmpty: true })
+    .fromString(mainCSV)
+    .then(json => {
+
+      // There has to be a more efficient way of doing this
+      if(dates && dates.length){
+        return json.filter(j=>dates.includes(j.date))
+      }
+      return json;
+    })
+
+
+  return ans;
 }
 //#endregion endregion
 

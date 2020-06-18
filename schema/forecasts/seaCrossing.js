@@ -6,7 +6,7 @@ const {
 
 
 const CrossReportType = new GraphQLObjectType({
-  name: 'CrossReportType',
+  name: 'CrossReport',
   fields: () => ({
     label: {type: GraphQLString},
     text: {type: GraphQLString}
@@ -14,14 +14,14 @@ const CrossReportType = new GraphQLObjectType({
 })
 
 const ValidTimeType = new GraphQLObjectType({
-  name: 'ValidTimeType',
+  name: 'ValidTime',
   fields: () => ({
     validTime: {type: GraphQLString}
   })
 })
 
 const SeaCrossingType = new GraphQLObjectType({
-  name: 'SeaCrossingType',
+  name: 'SeaCrossing',
   fields: () => ({
     title: { type: GraphQLString },
     crossingValid: {  type: ValidTimeType },
