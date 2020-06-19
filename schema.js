@@ -73,7 +73,8 @@ const {
   StationDetailInput,
   DailyDataInput,
   LocationsInput,
-  PresentObservationsInput
+  PresentObservationsInput,
+  CountyForecastInput
 } = require('./inputTypes/inputTypes');
 const { resolve } = require('path');
 
@@ -92,7 +93,7 @@ const RootQuery = new GraphQLObjectType({
     },
     countyForecast: {
       type: CountyForecastType,
-      args: { counties: { type: new GraphQLList(GraphQLString) } },
+      args: { counties: { type: new GraphQLList(CountyForecastInput) } },
       resolve: async (parent, args) =>
         await getLiveTextForecast('county_forecast', args),
     },
