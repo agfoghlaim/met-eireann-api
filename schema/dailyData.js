@@ -1,13 +1,5 @@
 const { GraphQLObjectType, GraphQLString, GraphQLList } = require('graphql');
 
-const TwoTextFields = new GraphQLObjectType({
-  name: 'TwoTextFields',
-  fields: () => ({
-    title: { type: GraphQLString },
-    text: { type: GraphQLString },
-  }),
-});
-
 const DailyDataType = new GraphQLObjectType({
   name: 'DailyData',
   fields: () => ({

@@ -22,7 +22,10 @@ const StationType_WebThreeDay = new GraphQLObjectType({
   name: 'Station_WebThreeDay',
   fields: () => ({
     id: { type: GraphQLString },
-    location: { type: GraphQLString },
+    location: { 
+      type: GraphQLString, 
+      // args: { locationName: { type: GraphQLString} },
+    },
     days: { type: new GraphQLList(DayType_WebThreeDay) }
   })
 });

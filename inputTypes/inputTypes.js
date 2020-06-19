@@ -6,7 +6,6 @@ const {
   GraphQLEnumType,
 } = require('graphql');
 
-
 module.exports.DailyDataInput = new GraphQLEnumType({
   name: 'DailyDataInput',
   values: {
@@ -113,7 +112,7 @@ module.exports.TimesInput = new GraphQLEnumType({
 
 module.exports.StationDetailInput = new GraphQLEnumType({
   name: 'StationDetailInput',
-  description: 'Open or closed, default to all',
+  description: 'Open or closed, defaults to all',
   values: {
     OPEN: { value: 'OPEN' },
     CLOSED: { value: 'CLOSED' },
@@ -121,3 +120,37 @@ module.exports.StationDetailInput = new GraphQLEnumType({
     MAIN: { value: 'MAIN' },
   },
 });
+module.exports.LocationsInput = new GraphQLEnumType({
+  name: 'LocationsInput',
+  values: {
+    CORK: { value: 'Cork' },
+    GALWAY: { value: 'Galway' },
+    MAYO: { value: 'Mayo' },
+    DONEGAL: { value: 'Donegal' },
+    KERRY: { value: 'Kerry' },
+    TIPPERARY: { value: 'Tipperary' },
+    CLARE: { value: 'Clare' },
+    LIMERICK: { value: 'Limerick' },
+    ROSCOMMON: { value: 'Roscommon' },
+    WEXFORD: { value: 'Wexford' },
+    MEATH: { value: 'Meath' },
+    KILKENNY: { value: 'Kilkenny' },
+    WICKLOW: { value: 'Wicklow' },
+    OFFALY: { value: 'Offaly' },
+    CAVAN: { value: 'Cavan' },
+    WATERFORD: { value: 'Waterford' },
+    WESTMEATH: { value: 'Westmeath' },
+    SLIGO: { value: 'Sligo' },
+    LAOIS: { value: 'Laois' },
+    KILDARE: { value: 'Kildare' },
+    LEITRIM: { value: 'Leitrim' },
+    MONAGHAN: { value: 'Monaghan' },
+    LONGFORD: { value: 'Longford' },
+    DUBLIN: { value: 'Dublin' },
+    CARLOW: { value: 'Carlow' },
+    LOUTH: { value: 'Louth' },
+    BELFAST: { value: 'Belfast'}
+  },
+});
+
+

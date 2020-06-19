@@ -72,6 +72,7 @@ const {
   TimesInput,
   StationDetailInput,
   DailyDataInput,
+  LocationsInput
 } = require('./inputTypes/inputTypes');
 const { resolve } = require('path');
 
@@ -127,7 +128,8 @@ const RootQuery = new GraphQLObjectType({
     },
     webThreeDayForecast: {
       type: WebThreeDayForecastType,
-      resolve: async () => await getLiveTextForecast('web-3Dayforecast'),
+      args: { locations: { type: new GraphQLList(LocationsInput) } },
+      resolve: async (_, args) => await getLiveTextForecast('web-3Dayforecast', args),
     },
     webForecast: {
       type: WebForecastType,
@@ -178,6 +180,7 @@ const RootQuery = new GraphQLObjectType({
       type: new GraphQLList(StationDetailType),
       args: { stationType: { type: StationDetailInput } },
       async resolve(_, args) {
+        console.log(args)
         return getStationDetailsLocal(args);
       },
     },
