@@ -37,6 +37,7 @@ module.exports.DailyDataInput = new GraphQLEnumType({
   },
 });
 
+// Good for monthly, today's and yesterday's data. Doesn't make sense that this is called StationsInput anymore. TODO
 module.exports.StationsInput = new GraphQLEnumType({
   name: 'StationsInput',
   values: {
@@ -152,5 +153,38 @@ module.exports.LocationsInput = new GraphQLEnumType({
     BELFAST: { value: 'Belfast'}
   },
 });
+
+module.exports.PresentObservationsInput = new GraphQLEnumType({
+  name: 'presentObservationsInput',
+  values: {
+    ATHENRY: {value: "Athenry"},
+    BALLYHAISE: {value: "Ballyhaise"},
+    BELMULLET: {value: "Belmullet"},
+    CASEMENT: {value: "Casement"},
+    CLAREMORRIS: {value: "Claremorris"},
+    CORK: {value: "Cork"},
+    DUBLIN: {value: "Dublin"},
+    DUNSANY: {value: "Dunsany"},
+    FINNER: {value: "Finner"},
+    GURTEEN: {value: "Gurteen"},
+    JOHNSTOWN_CASTLE: {value: "Johnstown Castle"},
+    KNOCK: {value: "Knock"},
+    MACE_HEAD: {value: "Mace Head"},
+    MALIN_HEAD: {value: "Malin Head"},
+    MARKREE_CASTLE: {value: "Markree Castle"},
+    MOORE_PARK: {value: "Moore Park"},
+    MT_DILLON: {value: "Mt Dillon"},
+    MULLINGAR: {value: "Mullingar"},
+    NEWPORT_MAYO: {value: "NewportMayo"},
+    OAK_PARK: {value: "Oak Park"},
+    PHOENIX_PARK: {value: "Phoenix Park"},
+    ROCHES_POINT: {value: "Roche's Point"},
+    SHANNON: {value: "Shannon"},
+    SHERKIN_ISLAND: {value: "Sherkin Island"},
+    VALENTIA: {value: "Valentia"},
+  },
+});
+
+
 
 

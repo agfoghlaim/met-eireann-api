@@ -72,7 +72,8 @@ const {
   TimesInput,
   StationDetailInput,
   DailyDataInput,
-  LocationsInput
+  LocationsInput,
+  PresentObservationsInput
 } = require('./inputTypes/inputTypes');
 const { resolve } = require('path');
 
@@ -118,7 +119,7 @@ const RootQuery = new GraphQLObjectType({
     },
     presentObservations: {
       type: PresentObservationsForecastType,
-      args: { stations: { type: new GraphQLList(GraphQLString) } },
+      args: { stations: { type: new GraphQLList(PresentObservationsInput) } },
       resolve: async (_, args) =>
         await getLiveTextForecast('obs_present', args.stations),
     },
