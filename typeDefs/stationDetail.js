@@ -6,7 +6,6 @@ const {
   GraphQLBoolean,
 } = require('graphql');
 
-
 const StationDetail = new GraphQLObjectType({
   name: 'StationDetail',
   fields: () => ({

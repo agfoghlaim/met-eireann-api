@@ -1,14 +1,9 @@
-const {
-  GraphQLObjectType,
-  GraphQLString,
-} = require('graphql');
-
-
+const { GraphQLObjectType, GraphQLString } = require('graphql');
 
 const MonthsAndTotalType = new GraphQLObjectType({
   name: 'MonthsAndTotal',
   fields: () => ({
-    january: { type: GraphQLString},
+    january: { type: GraphQLString },
     february: { type: GraphQLString },
     mar: { type: GraphQLString },
     apr: { type: GraphQLString },
@@ -20,13 +15,13 @@ const MonthsAndTotalType = new GraphQLObjectType({
     october: { type: GraphQLString },
     november: { type: GraphQLString },
     december: { type: GraphQLString },
-    total: { type: GraphQLString }
-  })
+    total: { type: GraphQLString },
+  }),
 });
 const MonthsAndAnnualType = new GraphQLObjectType({
   name: 'MonthsAndAnnual',
   fields: () => ({
-    january: { type: GraphQLString},
+    january: { type: GraphQLString },
     february: { type: GraphQLString },
     mar: { type: GraphQLString },
     apr: { type: GraphQLString },
@@ -38,8 +33,8 @@ const MonthsAndAnnualType = new GraphQLObjectType({
     october: { type: GraphQLString },
     november: { type: GraphQLString },
     december: { type: GraphQLString },
-    annual: { type: GraphQLString }
-  })
+    annual: { type: GraphQLString },
+  }),
 });
 const ReportContents = new GraphQLObjectType({
   name: 'ReportContents',
@@ -48,19 +43,18 @@ const ReportContents = new GraphQLObjectType({
     _2018: { type: MonthsAndAnnualType },
     _2019: { type: MonthsAndAnnualType },
     _2020: { type: MonthsAndAnnualType },
-    _mean: { type: MonthsAndTotalType }
-  })
+    _mean: { type: MonthsAndTotalType },
+  }),
 });
 
 const ReportType = new GraphQLObjectType({
   name: 'Report',
   fields: () => ({
     report: { type: ReportContents },
-   
-  })
+  }),
 });
-const MonthlyData = new GraphQLObjectType({
-  name: 'MonthlyData',
+const MonthlyWeather = new GraphQLObjectType({
+  name: 'MonthlyWeather',
   fields: () => ({
     station: { type: GraphQLString },
     up_to: { type: GraphQLString },
@@ -70,9 +64,7 @@ const MonthlyData = new GraphQLObjectType({
     potential_evapotranspiration: { type: ReportType },
     evaporation: { type: ReportType },
     degree_days_below_fiften_point_five_degrees_celsius: { type: ReportType },
-    
-  })
+  }),
 });
 
-module.exports = MonthlyData;
-
+module.exports = MonthlyWeather;

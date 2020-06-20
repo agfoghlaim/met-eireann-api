@@ -185,6 +185,37 @@ module.exports.PresentObservationsInput = new GraphQLEnumType({
   },
 });
 
+module.exports.monthlyWeatherStationInput = new GraphQLEnumType({
+  name: 'monthlyWeatherStationInput',
+  values: {
+    ATHENRY: { value: 'Athenry' },
+    BALLYHAISE: { value: 'Ballyhaise' },
+    BELMULLET: { value: 'Belmullet' },
+    CASEMENT: { value: 'Casement' },
+    CLAREMORRIS: { value: 'Claremorris' },
+    CORK: { value: 'Cork' },
+    DUBLIN: { value: 'Dublin' },
+    DUNSANY: { value: 'Dunsany' },
+    FINNER: { value: 'Finner' },
+    GURTEEN: { value: 'Gurteen' },
+    JOHNSTOWN_CASTLE: { value: 'Johnstown Castle' },
+    KNOCK: { value: 'Knock' },
+    MACE_HEAD: { value: 'Mace Head' },
+    MALIN_HEAD: { value: 'Malin Head' },
+    MARKREE_CASTLE: { value: 'Markree Castle' },
+    MOORE_PARK: { value: 'Moore Park' },
+    MT_DILLON: { value: 'Mt Dillon' },
+    MULLINGAR: { value: 'Mullingar' },
+    NEWPORT_MAYO: { value: 'NewportMayo' },
+    OAK_PARK: { value: 'Oak Park' },
+    PHOENIX_PARK: { value: 'Phoenix Park' },
+    ROCHES_POINT: { value: "Roche's Point" },
+    SHANNON: { value: 'Shannon' },
+    SHERKIN_ISLAND: { value: 'Sherkin Island' },
+    VALENTIA: { value: 'Valentia' },
+  },
+});
+
 module.exports.CountyForecastInput = new GraphQLEnumType({
   name: 'CountyForecastInput',
   values: {
@@ -216,3 +247,11 @@ module.exports.CountyForecastInput = new GraphQLEnumType({
     LIMERICK: { value: 'LIMERICK' },
   },
 });
+
+module.exports.DataTimeFrameInput = new GraphQLEnumType({
+  name: 'DataTimeFrameInput',
+  values: {
+    DAILY: {value: 'dly'},
+    MONTHLY: {value: 'mly'}
+  }
+})

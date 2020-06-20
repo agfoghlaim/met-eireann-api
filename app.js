@@ -11,9 +11,8 @@ app.use(
   '/graphql',
   graphqlHttp({
     schema,
-    graphiql: true
+    graphiql: true,
   })
 );
 
 app.listen(3000);
-

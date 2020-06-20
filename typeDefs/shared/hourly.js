@@ -1,4 +1,4 @@
-const { GraphQLObjectType, GraphQLString, GraphQLList } = require('graphql');
+const { GraphQLObjectType, GraphQLString } = require('graphql');
 
 const HourlyDataType = new GraphQLObjectType({
   name: 'HourlyData',
@@ -20,12 +20,4 @@ const HourlyDataType = new GraphQLObjectType({
   })
 });
 
-
-const TodaysDataType = new GraphQLObjectType({
-  name: 'TodaysYesterdaysData',
-  fields: () => ({
-    hourly: { type: new GraphQLList(HourlyDataType) }
-  })
-});
-
-module.exports = TodaysDataType;
+module.exports = HourlyDataType;

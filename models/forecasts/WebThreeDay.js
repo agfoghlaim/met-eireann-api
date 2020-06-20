@@ -1,7 +1,7 @@
 class WebThreeDayForecastModel {
   constructor(data, args) {
     let forecast = this.tidyWebThreeDayForecast(data);
-    console.log(forecast)
+  
     if (args.locations && args.locations.length) {
       forecast.stations = forecast.stations.filter((station) =>
         args.locations.includes(station.location)

@@ -1,6 +1,5 @@
-class MonthlyDataModel {
+class MonthlyWeather {
   constructor(data) {
-  
     this.data = this.addUnderscoresToKeysWithNumbers(data);
   }
 
@@ -8,7 +7,6 @@ class MonthlyDataModel {
   addUnderscoresToKeysWithNumbers(data) {
     const infoKeys = Object.keys(data);
 
-   
     function renameKeysWithObjectsInsideAndDeleteOld(infoKey, data) {
       const short = data[infoKey].report;
       if (typeof data[infoKey] === 'object' && short) {
@@ -21,10 +19,12 @@ class MonthlyDataModel {
       return data;
     }
 
-    infoKeys.forEach(infoKey =>renameKeysWithObjectsInsideAndDeleteOld(infoKey, data));
+    infoKeys.forEach((infoKey) =>
+      renameKeysWithObjectsInsideAndDeleteOld(infoKey, data)
+    );
 
     return data;
   }
 }
 
-module.exports = MonthlyDataModel;
+module.exports = MonthlyWeather;

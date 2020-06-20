@@ -1,4 +1,4 @@
-const { GraphQLObjectType, GraphQLString, GraphQLList } = require('graphql');
+const { GraphQLObjectType, GraphQLString } = require('graphql');
 
 const DailyDataType = new GraphQLObjectType({
   name: 'DailyData',

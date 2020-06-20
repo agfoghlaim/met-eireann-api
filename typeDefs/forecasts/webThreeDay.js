@@ -1,8 +1,7 @@
 const { GraphQLObjectType, GraphQLString, GraphQLList } = require('graphql');
 
-// TODO - this is the same type as in webThreeDayForecas
-const DayType_WebForecast = new GraphQLObjectType({
-  name: 'Day_WebForecast',
+const DayType_WebThreeDay = new GraphQLObjectType({
+  name: 'Day_WebThreeDay',
   fields: () => ({
     day_num: { type: GraphQLString },
     date: { type: GraphQLString },
@@ -15,27 +14,28 @@ const DayType_WebForecast = new GraphQLObjectType({
     wind_speed: { type: GraphQLString },
     wind_dir: { type: GraphQLString },
     wind_speed_night: { type: GraphQLString },
-    wind_dir_night: { type: GraphQLString }
-  })
+    wind_dir_night: { type: GraphQLString },
+  }),
 });
 
-const StationType_WebForecast = new GraphQLObjectType({
-  name: 'Station_WebForecast',
+const StationType_WebThreeDay = new GraphQLObjectType({
+  name: 'Station_WebThreeDay',
   fields: () => ({
     id: { type: GraphQLString },
-    location: { type: GraphQLString },
-    days: { type: new GraphQLList(DayType_WebForecast) }
-  })
+    location: {
+      type: GraphQLString,
+    },
+    days: { type: new GraphQLList(DayType_WebThreeDay) },
+  }),
 });
 
-const WebForecastType = new GraphQLObjectType({
-  name: 'WebForecast',
+const WebThreeDayForecastType = new GraphQLObjectType({
+  name: 'WebThreeDayForecast',
   fields: () => ({
-    // test: {type: GraphQLString}
     time: { type: GraphQLString },
     issued: { type: GraphQLString },
-    stations: { type: new GraphQLList(StationType_WebForecast) }
-  })
+    stations: { type: new GraphQLList(StationType_WebThreeDay) },
+  }),
 });
 
-module.exports = WebForecastType;
+module.exports = WebThreeDayForecastType;

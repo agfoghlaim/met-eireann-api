@@ -1,4 +1,4 @@
-class TodaysDataModel{
+class TodaysWeather{
 
   // can only accept a single station https://.../observations/${station}/today
   constructor(data, times) {
@@ -16,4 +16,4 @@ class TodaysDataModel{
   }
 
 }
-module.exports = TodaysDataModel;
+module.exports = TodaysWeather;

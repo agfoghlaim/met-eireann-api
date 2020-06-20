@@ -150,5 +150,5 @@ const NewBlock = new GraphQLObjectType({
     forecasts: { type: new GraphQLList(ForecastBlockType) },
   }),
 });
-// module.exports = ForecastBlockType;
+
 module.exports = NewBlock;

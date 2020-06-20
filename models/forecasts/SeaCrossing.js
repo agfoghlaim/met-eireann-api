@@ -19,7 +19,7 @@ class SeaCrossingModel {
         crossReports: [...getCrossings()],
       },
     };
-    // console.log("ans= ", ans.crossings)
+ 
     this.forecast = ans.crossings;
   }
 }

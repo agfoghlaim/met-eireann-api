@@ -2,7 +2,7 @@
 
 class ForecastBlockModel {
   constructor(config) {
-    // TODO deal with meta
+
     const weatherForeCasts = config.weatherdata.product[0].time;
 
     const niceMeta = this.doMeta(config.weatherdata.meta[0]);

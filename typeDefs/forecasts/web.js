@@ -1,7 +1,8 @@
 const { GraphQLObjectType, GraphQLString, GraphQLList } = require('graphql');
 
-const DayType_WebThreeDay = new GraphQLObjectType({
-  name: 'Day_WebThreeDay',
+// TODO - this is the same type as in webThreeDayForecas
+const DayType_WebForecast = new GraphQLObjectType({
+  name: 'Day_WebForecast',
   fields: () => ({
     day_num: { type: GraphQLString },
     date: { type: GraphQLString },
@@ -18,25 +19,22 @@ const DayType_WebThreeDay = new GraphQLObjectType({
   })
 });
 
-const StationType_WebThreeDay = new GraphQLObjectType({
-  name: 'Station_WebThreeDay',
+const StationType_WebForecast = new GraphQLObjectType({
+  name: 'Station_WebForecast',
   fields: () => ({
     id: { type: GraphQLString },
-    location: { 
-      type: GraphQLString, 
-      // args: { locationName: { type: GraphQLString} },
-    },
-    days: { type: new GraphQLList(DayType_WebThreeDay) }
+    location: { type: GraphQLString },
+    days: { type: new GraphQLList(DayType_WebForecast) }
   })
 });
 
-const WebThreeDayForecastType = new GraphQLObjectType({
-  name: 'WebThreeDayForecast',
+const WebForecastType = new GraphQLObjectType({
+  name: 'WebForecast',
   fields: () => ({
     time: { type: GraphQLString },
     issued: { type: GraphQLString },
-    stations: { type: new GraphQLList(StationType_WebThreeDay) }
+    stations: { type: new GraphQLList(StationType_WebForecast) }
   })
 });
 
-module.exports = WebThreeDayForecastType;
+module.exports = WebForecastType;

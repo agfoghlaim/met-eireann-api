@@ -4,8 +4,8 @@ const ValueAndUnitType = new GraphQLObjectType({
   name: 'ValueAndUnit',
   fields: () => ({
     value: { type: GraphQLString },
-    unit: { type: GraphQLString }
-  })
+    unit: { type: GraphQLString },
+  }),
 });
 
 const StationType = new GraphQLObjectType({
@@ -19,16 +19,16 @@ const StationType = new GraphQLObjectType({
     wind_direction: { type: GraphQLString },
     humidity: { type: ValueAndUnitType },
     rainfall: { type: ValueAndUnitType },
-    pressure: { type: ValueAndUnitType }
-  })
+    pressure: { type: ValueAndUnitType },
+  }),
 });
 
 const PresentObservationsType = new GraphQLObjectType({
   name: 'PresentObservations',
   fields: () => ({
     time: { type: GraphQLString },
-    stations: { type: new GraphQLList(StationType) }
-  })
+    stations: { type: new GraphQLList(StationType) },
+  }),
 });
 
 module.exports = PresentObservationsType;

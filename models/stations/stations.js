@@ -112,7 +112,7 @@ const STATIONS = [
 ];
 module.exports = {
   // some querys to ME for monthlyData fail without capital letters. I cannot be bothered making this foolproof.
-  //Update: I think the lowercase/hyphenated STATIONS.todayYesterday versions may work for both monthly and today/yesterday queries - TODO - check this.
+  // Update: I think the lowercase/hyphenated STATIONS.todayYesterday versions may work for both monthly and today/yesterday queries - TODO - check this.
 
   stationNamesForMonthlyDataEndpoint: () =>
     STATIONS.map((station) => station.name),
