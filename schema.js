@@ -3,6 +3,8 @@ const {
   GraphQLString,
   GraphQLSchema,
   GraphQLList,
+  GraphQLNonNull,
+  GraphQLInt
 } = require('graphql');
 
 // #region Resolvers
@@ -177,16 +179,19 @@ const RootQuery = new GraphQLObjectType({
     dailyData: {
       type: new GraphQLList(DailyDataType),
       description:
-        'To get specific dates use "dates: ["14-aug-2004", "14-aug-2018","14-aug-2020"]"',
+        'To get specific dates use "dates: ["14-aug-2004", "14-aug-2018","14-aug-2020"]". Year will be ignored if dates arg is present.',
       args: {
-        station: { type: DailyDataInput },
+        station: { type: GraphQLNonNull(DailyDataInput) },
+     
         dates: {
-          type: new GraphQLList(GraphQLString),
-          description:
-            'Accepts array of dates in format like "19-jul-2019". Response will be data.dailyData:[] if date format doesn\'t match.',
+          type: new GraphQLList(GraphQLString)
+        },
+        year: {
+          type: GraphQLString
         },
       },
       async resolve(_, args) {
+      
         return getDailyData(args);
       },
     },

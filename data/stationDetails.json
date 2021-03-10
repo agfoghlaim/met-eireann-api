@@ -16429,7 +16429,7 @@
     "longitude": -7.357,
     "openYear": 2009,
     "closeYear": 0,
-    "main": true
+    "main": false
   },
   {
     "county": "Westmeath",
@@ -16455,7 +16455,7 @@
     "longitude": -7.357,
     "openYear": 2002,
     "closeYear": 0,
-    "main": false
+    "main": true
   },
   {
     "county": "Westmeath",
