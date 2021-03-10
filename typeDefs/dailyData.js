@@ -1,7 +1,55 @@
-const { GraphQLObjectType, GraphQLString, GraphQLFloat  } = require('graphql');
+const {
+  GraphQLObjectType,
+  GraphQLList,
+  GraphQLString,
+  GraphQLFloat,
+} = require('graphql');
 
-const DailyDataType = new GraphQLObjectType({
-  name: 'DailyData',
+/*
+ DailyData will be...
+ {
+    legend: {
+      rain: 'Precipitatino Amount (mm)', 
+      maxtp: 'Maximum Air Temperature (C)', 
+      ...},
+    data: [
+      {
+        rain: 0.1, 
+        maxtp: 8.3
+      },{
+        rain: 0.1, 
+        maxtp: 8.3
+      }...
+    ]
+  }
+ */
+
+const DailyDataLegendType = new GraphQLObjectType({
+  name: 'DailyDataLegend',
+  fields: () => ({
+    date: { type: GraphQLString },
+    rain: { type: GraphQLString },
+    maxtp: { type: GraphQLString },
+    mintp: { type: GraphQLString },
+    gmin: { type: GraphQLString },
+    soil: { type: GraphQLString },
+    cbl: { type: GraphQLString },
+    wdsp: { type: GraphQLString },
+    hm: { type: GraphQLString },
+    ddhm: { type: GraphQLString },
+    hg: { type: GraphQLString },
+    pe: { type: GraphQLString },
+    evap: { type: GraphQLString },
+    smd_wd: { type: GraphQLString },
+    smd_md: { type: GraphQLString },
+    smd_pd: { type: GraphQLString },
+    glorad: { type: GraphQLString },
+    ind: { type: GraphQLString },
+  }),
+});
+
+const DailyDataDataType = new GraphQLObjectType({
+  name: 'DailyDataData',
   fields: () => ({
     date: { type: GraphQLString, description: '00 to 00 utc' },
     rain: { type: GraphQLFloat, description: 'Precipitation Amount (mm)' },
@@ -14,7 +62,7 @@ const DailyDataType = new GraphQLObjectType({
     soil: {
       type: GraphQLString,
       description: 'Mean 10cm soil temperature (C)',
-    }, 
+    },
     cbl: { type: GraphQLFloat, description: 'Mean CBL Pressure (hpa)' },
     wdsp: { type: GraphQLFloat, description: 'Mean Wind Speed (kt)' },
     hm: {
@@ -48,4 +96,11 @@ const DailyDataType = new GraphQLObjectType({
   }),
 });
 
+const DailyDataType = new GraphQLObjectType({
+  name: 'DailyData',
+  fields: () => ({
+    legend: { type: DailyDataLegendType },
+    data: { type: new GraphQLList(DailyDataDataType) },
+  }),
+});
 module.exports = DailyDataType;

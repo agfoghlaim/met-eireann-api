@@ -1,10 +1,10 @@
 const axios = require('axios');
 const CSVToJSON = require('csvtojson');
+const { dailyDataLegend } = require('../constants');
 
-module.exports.getDailyData = async function ({ station,  dates, year }) {
-
+module.exports.getDailyData = async function ({ station, dates, year }) {
   // Error if there's no station arg.
-  if(!station) {
+  if (!station) {
     throw new Error('Missing station param.');
   }
 
@@ -17,6 +17,12 @@ module.exports.getDailyData = async function ({ station,  dates, year }) {
     url: dailyDataUrl,
   });
 
+  /**
+   * Everything before "Indication (i)" is not csv?. It contains basic info on the relevant weather station & a legend to explain what the keys in the csv data mean (eg smd_wd:-  Soil Moisture Deficits(mm) well drained).
+   *
+   * A version of the legend is hardcoded it in consts.js and will add it in here as ans.legend
+   */
+
   // remove everything before the first column name in the csv file.
   const startAndMain = response.data.toString().split('Indicator (i)');
 
@@ -25,24 +31,28 @@ module.exports.getDailyData = async function ({ station,  dates, year }) {
   const ans = CSVToJSON({ ignoreEmpty: true })
     .fromString(mainCSV)
     .then((json) => {
+      const dailyData = {
+        legend: dailyDataLegend,
+        data: json,
+      };
 
       // Filter specific dates if dates arg exists.
       if (dates && dates.length) {
-        return json.filter((j) => dates.includes(j.date));
+        dailyData.data = json.filter((j) => dates.includes(j.date));
       }
 
       // If no dates, filter by year if year arg exists.
-      if(year && year.length === 4) {
-        
+      if (year && year.length === 4) {
+
         // dates are in format '20-jan-2021'.
-        // check if json.date includes eg. '-2021'.
         const str = `-${year}`;
-        return json.filter((j)=> j.date.includes(str) );
+        
+        // check if json.date includes eg. '-2021'.
+        dailyData.data = json.filter((j) => j.date.includes(str));
       }
 
-      // Return everything if no args.
-      return json;
-    })
+      return dailyData;
+    });
 
   return ans;
-}
+};
