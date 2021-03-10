@@ -3,6 +3,8 @@ const {
   GraphQLList,
   GraphQLString,
   GraphQLFloat,
+  GraphQLBoolean,
+  GraphQLInt,
 } = require('graphql');
 
 /*
@@ -45,6 +47,22 @@ const DailyDataLegendType = new GraphQLObjectType({
     smd_pd: { type: GraphQLString },
     glorad: { type: GraphQLString },
     ind: { type: GraphQLString },
+  }),
+});
+const StationDetailsType = new GraphQLObjectType({
+  name: 'StationDetails',
+  fields: () => ({
+    county: { type: GraphQLString },
+    stationNumber: { type: GraphQLInt },
+    name: { type: GraphQLString },
+    heightInMeters: { type: GraphQLFloat },
+    easting: { type: GraphQLInt },
+    northing: { type: GraphQLInt },
+    latitude: { type: GraphQLFloat },
+    longitude: { type: GraphQLFloat },
+    openYear: { type: GraphQLString },
+    closeYear: { type: GraphQLInt },
+    main: { type: GraphQLBoolean },
   }),
 });
 
@@ -100,6 +118,7 @@ const DailyDataType = new GraphQLObjectType({
   name: 'DailyData',
   fields: () => ({
     legend: { type: DailyDataLegendType },
+    station: { type: StationDetailsType },
     data: { type: new GraphQLList(DailyDataDataType) },
   }),
 });

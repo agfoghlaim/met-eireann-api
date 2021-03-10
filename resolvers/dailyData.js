@@ -1,6 +1,6 @@
 const axios = require('axios');
 const CSVToJSON = require('csvtojson');
-const { dailyDataLegend } = require('../constants');
+const { dailyDataLegend, mainStations } = require('../constants');
 
 module.exports.getDailyData = async function ({ station, dates, year }) {
   // Error if there's no station arg.
@@ -9,6 +9,10 @@ module.exports.getDailyData = async function ({ station, dates, year }) {
   }
 
   const stationNum = station; // rename for clarity.
+
+  const stationDets = mainStations.find(
+    (station) => station.stationNumber === stationNum
+  );
 
   const dailyDataUrl = `https://cli.fusio.net/cli/climate_data/webdata/dly${stationNum}.csv`;
   // const dailyOrMonthlyData = `https://cli.fusio.net/cli/climate_data/webdata/${timeframe}${stationNum}.csv`;
@@ -32,6 +36,7 @@ module.exports.getDailyData = async function ({ station, dates, year }) {
     .fromString(mainCSV)
     .then((json) => {
       const dailyData = {
+        station: stationDets,
         legend: dailyDataLegend,
         data: json,
       };
@@ -43,10 +48,9 @@ module.exports.getDailyData = async function ({ station, dates, year }) {
 
       // If no dates, filter by year if year arg exists.
       if (year && year.length === 4) {
-
         // dates are in format '20-jan-2021'.
         const str = `-${year}`;
-        
+
         // check if json.date includes eg. '-2021'.
         dailyData.data = json.filter((j) => j.date.includes(str));
       }
