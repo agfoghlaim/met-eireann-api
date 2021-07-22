@@ -348,5 +348,34 @@ const dailyDataLegend = {
   ind: 'Indicator (i)',
 };
 
+const stationNameVersions = {}
+stationNameVersions.presentObservations= {}
+  stationNameVersions.presentObservations['Athenry'] = 1875;
+  stationNameVersions.presentObservations['Ballyhaise'] = 675;
+  stationNameVersions.presentObservations['Belmullet'] = 2375;
+  stationNameVersions.presentObservations['Casement'] = 3723;
+  stationNameVersions.presentObservations['Claremorris'] = 2175;
+  stationNameVersions.presentObservations['Cork'] = 3904;
+  stationNameVersions.presentObservations['Dublin'] = 532; // presuming it's Dublin Airport
+  stationNameVersions.presentObservations['Dunsany'] = 1375;
+  stationNameVersions.presentObservations['Finner'] = 2075;
+  stationNameVersions.presentObservations['Gurteen'] = 1475;
+  stationNameVersions.presentObservations['Johnstown Castle'] = 1775;
+  stationNameVersions.presentObservations['Knock'] = 4935;
+  stationNameVersions.presentObservations['Mace Head'] = 275;
+  stationNameVersions.presentObservations['Malin Head'] = 1575;
+  stationNameVersions.presentObservations['Markree Castle'] = 1275;
+  stationNameVersions.presentObservations['Moore Park'] = 575;
+  stationNameVersions.presentObservations['Mt Dillon'] = 1975;
+  stationNameVersions.presentObservations['Mullingar'] = 875;
+  stationNameVersions.presentObservations['NewportMayo'] = 833;
+  stationNameVersions.presentObservations['Oak Park'] = 375;
+  stationNameVersions.presentObservations['Phoenix Park'] = 175;
+  stationNameVersions.presentObservations['Roche\'s Point'] = 1075;
+  stationNameVersions.presentObservations['Shannon'] = 518;
+  stationNameVersions.presentObservations['Sherkin Island'] = 775;
+  stationNameVersions.presentObservations['Valentia'] = 2275;
+
 exports.dailyDataLegend = dailyDataLegend;
 exports.mainStations = mainStations;
+exports.stationNameVersions = stationNameVersions;

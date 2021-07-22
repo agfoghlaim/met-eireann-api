@@ -1,3 +1,5 @@
+const { stationNameVersions, mainStations }  = require('../../constants');
+
 class PresentObservations {
   constructor(data, args) {
     let allObservations = this.tidyPresentObservations(data);
@@ -17,8 +19,13 @@ class PresentObservations {
     const newData = {};
     newData.time = data.observations.$.time;
     newData.stations = data.observations.station.map((s) => {
+      const stationNumber = stationNameVersions.presentObservations[s.$.name];
+      const stationDetails = mainStations.find(station=>station.stationNumber===stationNumber);
+      //console.log("det= ", stationDetails, " wat")
       return {
-        name: s.$.name,
+        //name: s.$.name, // get these from stationDetails
+       // stationNumber: stationNumber, // get these from stationDetails
+        ...stationDetails,
         temp: {
           value: s.temp[0]._,
           unit: s.temp[0].$.unit,

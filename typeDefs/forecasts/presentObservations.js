@@ -1,4 +1,4 @@
-const { GraphQLObjectType, GraphQLString, GraphQLList } = require('graphql');
+const { GraphQLObjectType, GraphQLFloat, GraphQLBoolean, GraphQLString, GraphQLList, GraphQLInt } = require('graphql');
 
 const ValueAndUnitType = new GraphQLObjectType({
   name: 'ValueAndUnit',
@@ -12,6 +12,17 @@ const StationType = new GraphQLObjectType({
   name: 'StationType',
   fields: () => ({
     name: { type: GraphQLString },
+    stationNumber: { type: GraphQLInt},
+    county: { type: GraphQLString },
+    stationNumber: { type: GraphQLInt },
+    heightInMeters: { type: GraphQLInt },
+    easting: { type: GraphQLInt },
+    northing: { type: GraphQLInt },
+    latitude: { type: GraphQLFloat },
+    longitude: { type: GraphQLFloat },
+    openYear: { type: GraphQLInt },
+    closeYear: { type: GraphQLInt },
+    main: { type: GraphQLBoolean },
     temp: { type: ValueAndUnitType },
     symbol: { type: GraphQLString },
     weather_text: { type: GraphQLString },
